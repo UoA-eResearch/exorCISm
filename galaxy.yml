@@ -1,0 +1,36 @@
+---
+namespace: uoa_eresearch
+name: exorcism
+version: 0.1.0
+
+readme: README.md
+
+authors:
+  - Thomas Laurenson <tom.laurenson@auckland.ac.nz>
+
+description: >-
+  Ansible playbooks to implement CIS hardening.
+
+license:
+  - MIT
+
+tags:
+  - security
+  - hardening
+  - cis
+  - compliance
+  - linux
+  - ubuntu
+
+repository: https://github.com/UoA-eResearch/exorCISm
+homepage: https://github.com/UoA-eResearch/exorCISm
+issues: https://github.com/UoA-eResearch/exorCISm/issues
+
+# This collection uses only ansible.builtin modules.
+dependencies: {}
+
+build_ignore:
+  - .github
+  - .gitignore
+  - .ansible-lint
+  - "*.tar.gz"

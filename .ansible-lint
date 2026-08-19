@@ -1,0 +1,12 @@
+---
+profile: production
+
+exclude_paths:
+  - .github/
+
+skip_list:
+  # Variables use the collection-wide `exorcism_` prefix rather than a per-role
+  # prefix. A policy value set once in inventory then applies to whichever OS
+  # role runs on the host, instead of having to be duplicated per OS as new
+  # roles are added.
+  - var-naming[no-role-prefix]

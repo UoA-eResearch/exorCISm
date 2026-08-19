@@ -1,0 +1,4 @@
+---
+# Minimum ansible-core the collection is supported on. Deliberately permissive:
+# the roles use only ansible.builtin modules available well before this floor.
+requires_ansible: ">=2.15.0"
