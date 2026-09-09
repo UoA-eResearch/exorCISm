@@ -1,0 +1,64 @@
+---
+- name: 2.4.1.2 Ensure permissions on /etc/crontab are configured
+  ansible.builtin.file:
+    path: /etc/crontab
+    state: file
+    owner: root
+    group: root
+    mode: "0600"
+  tags: 2.4_cron
+
+- name: 2.4.1.3 Ensure permissions on /etc/cron.hourly are configured
+  ansible.builtin.file:
+    path: /etc/cron.hourly
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  tags: 2.4_cron
+
+- name: 2.4.1.4 Ensure permissions on /etc/cron.daily are configured
+  ansible.builtin.file:
+    path: /etc/cron.daily
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  tags: 2.4_cron
+
+- name: 2.4.1.5 Ensure permissions on /etc/cron.weekly are configured
+  ansible.builtin.file:
+    path: /etc/cron.weekly
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  tags: 2.4_cron
+
+- name: 2.4.1.6 Ensure permissions on /etc/cron.monthly are configured
+  ansible.builtin.file:
+    path: /etc/cron.monthly
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  tags: 2.4_cron
+
+- name: 2.4.1.7 Ensure permissions on /etc/cron.d are configured
+  ansible.builtin.file:
+    path: /etc/cron.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  tags: 2.4_cron
+  
+- name: 2.4.1.8 Ensure crontab is restricted to authorized users
+  ansible.builtin.copy:
+    content: "{{ (['root'] + exorcism_cron_allow_extra_users) | join('\n') }}\n"
+    dest: /etc/cron.allow
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+  tags: 2.4_cron

@@ -1,0 +1,34 @@
+---
+- name: 1.5.1 Restrict core dumps and enable ASLR
+  ansible.builtin.copy:
+    src: 90-coredump.conf
+    dest: /etc/sysctl.d/90-coredump.conf
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  notify: Reload sysctl
+  tags: 1.5_core_dumps
+
+- name: 1.5.1 Disable core dumps in /etc/security/limits.conf
+  ansible.builtin.copy:
+    src: 90-disablecore.conf
+    dest: /etc/security/limits.d/90-disablecore.conf
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  tags: 1.5_core_dumps
+
+- name: 1.5.3 Ensure systemd-coredump is installed
+  ansible.builtin.apt:
+    name: systemd-coredump
+    state: present
+  tags: 1.5_core_dumps
+
+- name: 1.5.5 Ensure Automatic Error Reporting is not enabled
+  ansible.builtin.apt:
+    name: apport
+    state: absent
+    purge: true
+  tags: 1.5_core_dumps

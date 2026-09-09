@@ -1,0 +1,54 @@
+---
+- name: 1.1 Kernel Modules
+  ansible.builtin.include_tasks: 1.1_kernel_modules.yml
+  tags: "1.1_kernel_modules"
+
+- name: 1.5 Core Dumps
+  ansible.builtin.include_tasks: 1.5_core_dumps.yml
+  tags: "1.5_core_dumps"
+
+- name: 1.6 Banner Configuration
+  ansible.builtin.include_tasks: 1.6_banner.yml
+  tags: "1.6_banner"
+
+- name: 2.2 Client Software
+  ansible.builtin.include_tasks: 2.2_clients.yml
+  tags: "2.2_clients"
+
+- name: 2.3 Time Synchronization
+  ansible.builtin.include_tasks: 2.3_time.yml
+  when: exorcism_time_section_enabled
+  tags: "2.3_time"
+
+- name: 2.4 Cron Configuration
+  ansible.builtin.include_tasks: 2.4_cron.yml
+  tags: "2.4_cron"
+
+- name: 3.3 Network Configuration
+  ansible.builtin.include_tasks: 3.3_net.yml
+  tags: "3.3_net"
+
+- name: 4.4 Firewall Configuration
+  ansible.builtin.include_tasks: 4.4_firewall.yml
+  when: exorcism_firewall_section_enabled
+  tags: "4.4_firewall"
+
+- name: 5.1 SSH Configuration
+  ansible.builtin.include_tasks: 5.1_ssh.yml
+  tags: "5.1_ssh"
+
+- name: 5.2 Sudo Configuration
+  ansible.builtin.include_tasks: 5.2_sudo.yml
+  tags: "5.2_sudo"
+
+- name: 5.3 Password and User Account Security
+  ansible.builtin.include_tasks: 5.3_password.yml
+  tags: "5.3_password"
+
+- name: 5.4 Password Expiration and Locking
+  ansible.builtin.include_tasks: 5.4_password.yml
+  tags: "5.4_password"
+
+- name: 6.1 Logging
+  ansible.builtin.include_tasks: 6.1_logging.yml
+  tags: "6.1_logging"

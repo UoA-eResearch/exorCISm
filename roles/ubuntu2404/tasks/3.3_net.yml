@@ -1,0 +1,16 @@
+---
+- name: 3.3.X Network Configuration
+  ansible.builtin.template:
+    src: 90-net.conf.j2
+    dest: /etc/sysctl.d/90-net.conf
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  tags: 3.3_net
+
+- name: Apply sysctl settings from previous play
+  ansible.builtin.command:
+    cmd: sysctl --system
+  changed_when: false
+  tags: 3.3_net

@@ -1,0 +1,57 @@
+---
+- name: 2.3.1.1 Ensure a single time synchronization daemon is in use (install chrony)
+  ansible.builtin.apt:
+    pkg:
+      - chrony
+    state: latest
+    update_cache: true
+  tags: 2.3_time
+
+- name: 2.3.1.1 Ensure a single time synchronization daemon is in use (check systemd-timesyncd)
+  ansible.builtin.shell: "systemctl list-unit-files | grep -q '^systemd-timesyncd.service'"
+  register: exorcism_timesyncd_check
+  failed_when: false
+  changed_when: false
+  tags: 2.3_time
+
+- name: 2.3.1.1 Ensure a single time synchronization daemon is in use (stop systemd-timesyncd)
+  ansible.builtin.systemd:
+    name: systemd-timesyncd.service
+    state: stopped
+  when: exorcism_timesyncd_check.rc == 0
+  tags: 2.3_time
+
+- name: 2.3.1.1 Ensure a single time synchronization daemon is in use (mask systemd-timesyncd)
+  ansible.builtin.systemd:
+    name: systemd-timesyncd.service
+    masked: yes
+  when: exorcism_timesyncd_check.rc == 0
+  tags: 2.3_time
+
+- name: 2.3.3.1 Ensure chrony is configured with authorized timeserver
+  ansible.builtin.file:
+    path: /etc/chrony/sources.d/
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: 2.3_time
+
+- name: 2.3.2.1 Ensure chrony is configured with authorized timeserver
+  ansible.builtin.template:
+    src: 90-chrony.conf.j2
+    dest: /etc/chrony/sources.d/90-chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  notify: Restart chrony
+  tags: 2.3_time
+
+# TEMP
+# Remove any existing timesyncd config overrides
+- name: 2.3.X Remove existing timesyncd config overrides
+  ansible.builtin.file:
+    path: /etc/systemd/timesyncd.conf.d/90-timesync.conf
+    state: absent
+  tags: 2.3_time

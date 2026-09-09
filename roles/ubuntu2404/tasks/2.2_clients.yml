@@ -1,0 +1,12 @@
+---
+- name: 2.2.4 Ensure telnet client is not installed
+  ansible.builtin.package:
+    name: inetutils-telnet
+    state: absent
+  tags: 2.2_clients
+
+- name: 2.2.5 Ensure ldap client is not installed
+  ansible.builtin.package:
+    name: ldap-utils
+    state: absent
+  tags: 2.2_clients

@@ -1,0 +1,36 @@
+---
+- name: 4.4.1.1 Ensure iptables packages are installed (iptables)
+  ansible.builtin.apt:
+    name: iptables
+    state: present
+  tags: 4.4_firewall
+
+- name: 4.4.1.2 Ensure iptables packages are installed (iptables-persistent)
+  ansible.builtin.apt:
+    name: iptables-persistent
+    state: present
+  tags: 4.4_firewall
+
+- name: 4.4.2.X Ensure iptables firewall rules are configured (IPv4)
+  ansible.builtin.copy:
+    src: rules.v4
+    dest: /etc/iptables/rules.v4
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+  notify: Reload iptables
+  when: exorcism_firewall_manage_rules_ipv4
+  tags: 4.4_firewall
+
+- name: 4.4.2.X Ensure iptables firewall rules are configured (IPv6)
+  ansible.builtin.copy:
+    src: rules.v6
+    dest: /etc/iptables/rules.v6
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+  notify: Reload iptables
+  when: exorcism_firewall_manage_rules_ipv6
+  tags: 4.4_firewall

@@ -1,0 +1,51 @@
+---
+- name: 5.1.1 Ensure permissions on /etc/ssh/sshd_config are configured
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+  tags: 5.1_ssh
+
+- name: 5.1.X Find files in /etc/ssh/sshd_config.d/
+  ansible.builtin.find:
+    paths: /etc/ssh/sshd_config.d/
+    file_type: file
+  register: exorcism_sshd_config_files
+  tags: 5.1_ssh
+
+- name: 5.1.X Ensure permissions on /etc/ssh/sshd_config.d/* are configured
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ exorcism_sshd_config_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: exorcism_sshd_config_files.files | length > 0
+  tags: 5.1_ssh
+
+- name: 5.1.X Copy 90-ssh.conf with base SSH configuration
+  ansible.builtin.template:
+    src: 90-ssh.conf.j2
+    dest: /etc/ssh/sshd_config.d/90-ssh.conf
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+  notify: Restart sshd
+  tags: 5.1_ssh
+
+- name: 5.1.X Copy 95-ca.conf with SSH CA configuration
+  ansible.builtin.template:
+    src: 95-ca.conf.j2
+    dest: /etc/ssh/sshd_config.d/95-ca.conf
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+  notify: Restart sshd
+  when: exorcism_ssh_trusted_user_ca_keys | length > 0
+  tags: 5.1_ssh

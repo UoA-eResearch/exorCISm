@@ -1,0 +1,77 @@
+---
+- name: Check if systemd-journal-remote is installed
+  ansible.builtin.command:
+    cmd: dpkg -l systemd-journal-remote
+  register: exorcism_journal_remote_check
+  failed_when: false
+  changed_when: false
+  tags: 6.1_logging
+
+- name: 6.1.2.1.1 Ensure systemd-journal-remote is installed
+  ansible.builtin.apt:
+    name: systemd-journal-remote
+    state: present
+    update_cache: true
+  when: exorcism_journal_remote_check.rc != 0
+  tags: 6.1_logging
+
+- name: 6.1.2.1.3 Ensure systemd-journal-upload is enabled and active
+  ansible.builtin.systemd:
+    name: systemd-journal-upload
+    state: stopped
+    enabled: false
+  failed_when: false
+  changed_when: false
+  tags: 6.1_logging
+
+- name: Create journald configuration directory
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: 6.1_logging
+
+- name: 6.1.X.X Add journald configuration
+  ansible.builtin.copy:
+    src: 90-journald.conf
+    dest: /etc/systemd/journald.conf.d/90-journald.conf
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  notify: Restart journald
+  tags: 6.1_logging
+
+- name: 6.1.4.1 Ensure access to all logfiles has been configured (directories)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+    recurse: false
+  loop:
+    - /var/log/unattended-upgrades/
+    - /var/log/installer/
+    - /var/log/installer/block/
+  failed_when: false
+  tags: 6.1_logging
+
+- name: 6.1.4.1 Ensure access to all logfiles has been configured (all files in /var/log)
+  ansible.builtin.shell: |
+    find /var/log -type f \( -perm /137 -o ! -perm -640 \) -exec chmod 0640 {} \;
+  failed_when: false
+  changed_when: false
+  tags: 6.1_logging
+
+- name: 6.1.4.1 Ensure access to all logfiles has been configured (individual files)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: "0640"
+  loop:
+    - /var/log/dpkg.log
+    - /var/log/alternatives.log
+    - /var/log/faillog
+    - /var/log/bootstrap.log
+  failed_when: false
+  tags: 6.1_logging
