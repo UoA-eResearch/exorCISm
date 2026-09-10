@@ -52,7 +52,7 @@
     group: root
     mode: "0700"
   tags: 2.4_cron
-  
+
 - name: 2.4.1.8 Ensure crontab is restricted to authorized users
   ansible.builtin.copy:
     content: "{{ (['root'] + exorcism_cron_allow_extra_users) | join('\n') }}\n"
