@@ -1,5 +1,14 @@
 ---
-# Whether the role owns the iptables rulesets. Both are ignored unless
-# exorcism_section_4_4_firewall_enabled is true.
-exorcism_firewall_manage_rules_ipv4: false
-exorcism_firewall_manage_rules_ipv6: false
+# Inbound TCP ports to accept. Everything else is dropped by the default policy.
+exorcism_firewall_allowed_tcp_ports: [22]
+
+# Whether the host may open new outbound connections. True implements CIS
+# 4.4.2.3, which a host needs to reach DNS, apt and NTP. Set false for egress
+# filtering, where only replies leave and every permitted destination must be
+# named in exorcism_firewall_extra_rules_v4 or _v6.
+exorcism_firewall_allow_all_outbound: true
+
+# Extra rules appended verbatim to the filter table, in iptables-save syntax.
+# Required when exorcism_firewall_allow_all_outbound is false.
+exorcism_firewall_extra_rules_v4: []
+exorcism_firewall_extra_rules_v6: []
