@@ -3,6 +3,10 @@ profile: production
 
 exclude_paths:
   - .github/
+  # Written to be copied out of the collection, so it references the role by
+  # its full name. That cannot resolve when linting from the source tree,
+  # where the collection is not installed under ansible_collections/.
+  - playbooks/ubuntu2404_example.yml
 
 skip_list:
   # Variables use the collection-wide `exorcism_` prefix rather than a per-role

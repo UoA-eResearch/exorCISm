@@ -140,4 +140,19 @@ Read the diff for `/etc/ssh/sshd_config.d/90-ssh.conf` in particular. If you hav
 
 ## Variables
 
-Every variable the role accepts is declared with a comment in `roles/ubuntu2404/defaults/main.yml`.
+Every variable is optional. Running the role with none set still hardens the host.
+
+Start from the worked example, which shows the variables most people set and explains when each one matters:
+
+```sh
+ansible-galaxy collection install git+https://github.com/UoA-eResearch/exorCISm.git
+cat ~/.ansible/collections/ansible_collections/uoa_eresearch/exorcism/playbooks/ubuntu2404_example.yml
+```
+
+For the complete reference, with every variable's type, default and permitted values:
+
+```sh
+ansible-doc -t role uoa_eresearch.exorcism.ubuntu2404
+```
+
+Variables fall into three kinds. Some are values the role cannot guess, such as which accounts may log in over SSH. Some are controls applied by default that you turn off when one breaks something, such as the kernel module blacklist on a container host. The rest are extra hardening left off by default because it can break a working system, such as letting the role own the firewall. The example playbook is grouped in that order.
