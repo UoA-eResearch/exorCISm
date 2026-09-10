@@ -1,0 +1,4 @@
+{% for module in exorcism_blacklist_kernel_modules if module not in exorcism_blacklist_kernel_modules_exclude %}
+install {{ module }} /bin/false
+blacklist {{ module }}
+{% endfor %}

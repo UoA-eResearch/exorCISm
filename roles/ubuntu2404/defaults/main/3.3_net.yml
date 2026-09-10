@@ -1,0 +1,4 @@
+---
+# Hosts that route traffic need forwarding enabled
+exorcism_ipv4_ip_forward: 0
+exorcism_ipv6_forwarding: 0

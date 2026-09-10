@@ -30,6 +30,9 @@ LoginGraceTime 60s
 # 5.1.14 Ensure sshd LogLevel is configured
 LogLevel INFO
 # 5.1.15 Ensure sshd MACs are configured
+# hmac-sha1 is permitted: the benchmark's weak list names hmac-sha1-96,
+# not hmac-sha1, and its notes count HMAC-SHA1 among the FIPS 140 approved
+# MACs. Removing it is a site decision, not a CIS requirement.
 MACs hmac-sha1,hmac-sha2-256,hmac-sha2-512
 # 5.1.16 Ensure sshd MaxAuthTries is configured
 MaxAuthTries 3

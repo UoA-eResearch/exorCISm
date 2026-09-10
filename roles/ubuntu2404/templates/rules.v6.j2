@@ -1,0 +1,34 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p udp -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p icmpv6 --icmpv6-type echo-request -j ACCEPT
+{% for port in exorcism_firewall_allowed_tcp_ports %}
+-A INPUT -p tcp -m tcp --dport {{ port }} -m state --state NEW -j ACCEPT
+{% endfor %}
+-A INPUT -s ::1/128 -j DROP
+-A OUTPUT -o lo -j ACCEPT
+{% if exorcism_firewall_allow_all_outbound %}
+# CIS 4.4.2.3 requires rules permitting new outbound connections. Without them
+# the OUTPUT DROP policy blocks DNS, apt and NTP, and the host cannot use the
+# network at all. Set exorcism_firewall_allow_all_outbound to false for egress
+# filtering, then name each permitted destination in
+# exorcism_firewall_extra_rules_v6.
+-A OUTPUT -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p udp -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p icmpv6 -m state --state NEW,ESTABLISHED -j ACCEPT
+{% else %}
+# Egress filtering. Only replies to inbound connections leave by default, so
+# every outbound destination the host needs must appear in
+# exorcism_firewall_extra_rules_v6 below.
+-A OUTPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -p udp -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -p icmpv6 --icmpv6-type echo-reply -j ACCEPT
+{% endif %}
+{% for rule in exorcism_firewall_extra_rules_v6 %}
+{{ rule }}
+{% endfor %}
+COMMIT

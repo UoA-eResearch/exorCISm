@@ -1,0 +1,7 @@
+---
+# Accounts permitted to log in over SSH. An empty list omits the AllowUsers
+# directive entirely, which permits all users. Setting it replaces the list.
+exorcism_ssh_allow_users: []
+
+# Applies sshd DisableForwarding. Bastion hosts need this set to false
+exorcism_ssh_disable_forwarding: true

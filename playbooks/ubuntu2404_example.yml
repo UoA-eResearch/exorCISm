@@ -1,0 +1,54 @@
+---
+# Worked example. Copy this into your own repository and edit it.
+#
+# Deliberately targets a group that does not exist, so running it directly
+# matches no hosts and does nothing. Change hosts to your own group.
+#
+# Every variable below is optional. Running the role with no variables at all
+# still hardens the host. For the full list of variables, run:
+#
+#   ansible-doc -t role uoa_eresearch.exorcism.ubuntu2404
+
+- name: Example CIS hardening for Ubuntu 24.04
+  hosts: exorcism_example_hosts
+  become: true
+  roles:
+    - role: uoa_eresearch.exorcism.ubuntu2404
+      vars:
+
+        # Values the role cannot guess for you.
+
+        # Restrict SSH to named accounts. An empty list, the default, permits
+        # all users. Setting this replaces the list rather than adding to it,
+        # so include every account that needs access, including your own.
+        exorcism_ssh_allow_users: [alice, bob]
+
+        # Internal time sources. The role leaves the host on whichever daemon
+        # it already runs, so this is usually all you need.
+        exorcism_ntp_servers: [ntp.example.org]
+
+        # Service accounts that must not have passwords expire or lock.
+        exorcism_password_excluded_users: [postgres, jenkins]
+
+        # Hosts that route traffic, such as Docker, KVM or NAT, need 1.
+        exorcism_ipv4_ip_forward: 1
+
+        # Controls that are on by default. Turn off only when one breaks
+        # something you need.
+
+        # Container hosts need the overlay module. Hosts using snaps need
+        # squashfs.
+        exorcism_blacklist_kernel_modules_exclude: [overlay]
+
+        # Bastion hosts, and users who need port forwarding, need this false.
+        exorcism_ssh_disable_forwarding: false
+
+        # Skip a whole CIS section when you manage it another way.
+        exorcism_section_6_1_logging_enabled: false
+
+        # Extra hardening, off by default because it can break things.
+
+        # Let the role own the host firewall. Read the rules it writes before
+        # enabling this, and make sure your ports are listed.
+        exorcism_section_4_4_firewall_enabled: true
+        exorcism_firewall_allowed_tcp_ports: [22, 443]

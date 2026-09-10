@@ -34,3 +34,7 @@ build_ignore:
   - .gitignore
   - .ansible-lint
   - "*.tar.gz"
+  # Reference and working material that must not be redistributed. The git
+  # exclude file does not apply here: collection builds obey this list alone.
+  - "*.pdf"
+  - CURRENT_ISSUES.md

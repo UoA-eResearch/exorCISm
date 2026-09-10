@@ -1,54 +1,84 @@
 ---
+# A list variable given a bare string iterates character by character, so
+# "maas" would render as "m a a s". Inventories commonly hold a single value
+# unquoted as a string, and argument validation does not coerce it, so wrap
+# any string back into a single-element list before use.
+- name: Normalise list variables supplied as a bare string
+  ansible.builtin.set_fact:
+    "{{ item }}": "{{ [lookup('vars', item)] if lookup('vars', item) is string else lookup('vars', item) }}"
+  loop:
+    - exorcism_blacklist_kernel_modules
+    - exorcism_blacklist_kernel_modules_exclude
+    - exorcism_ntp_servers
+    - exorcism_cron_allow_extra_users
+    - exorcism_firewall_allowed_tcp_ports
+    - exorcism_firewall_extra_rules_v4
+    - exorcism_firewall_extra_rules_v6
+    - exorcism_ssh_allow_users
+    - exorcism_password_excluded_users
+  tags: always
+
 - name: 1.1 Kernel Modules
   ansible.builtin.include_tasks: 1.1_kernel_modules.yml
+  when: exorcism_section_1_1_kernel_modules_enabled
   tags: "1.1_kernel_modules"
 
 - name: 1.5 Core Dumps
   ansible.builtin.include_tasks: 1.5_core_dumps.yml
+  when: exorcism_section_1_5_core_dumps_enabled
   tags: "1.5_core_dumps"
 
 - name: 1.6 Banner Configuration
   ansible.builtin.include_tasks: 1.6_banner.yml
+  when: exorcism_section_1_6_banner_enabled
   tags: "1.6_banner"
 
 - name: 2.2 Client Software
   ansible.builtin.include_tasks: 2.2_clients.yml
+  when: exorcism_section_2_2_clients_enabled
   tags: "2.2_clients"
 
-- name: 2.3 Time Synchronization
+- name: 2.3 Time Synchronisation
   ansible.builtin.include_tasks: 2.3_time.yml
-  when: exorcism_time_section_enabled
+  when: exorcism_section_2_3_time_enabled
   tags: "2.3_time"
 
 - name: 2.4 Cron Configuration
   ansible.builtin.include_tasks: 2.4_cron.yml
+  when: exorcism_section_2_4_cron_enabled
   tags: "2.4_cron"
 
 - name: 3.3 Network Configuration
   ansible.builtin.include_tasks: 3.3_net.yml
+  when: exorcism_section_3_3_net_enabled
   tags: "3.3_net"
 
 - name: 4.4 Firewall Configuration
   ansible.builtin.include_tasks: 4.4_firewall.yml
-  when: exorcism_firewall_section_enabled
+  when: exorcism_section_4_4_firewall_enabled
   tags: "4.4_firewall"
 
 - name: 5.1 SSH Configuration
   ansible.builtin.include_tasks: 5.1_ssh.yml
+  when: exorcism_section_5_1_ssh_enabled
   tags: "5.1_ssh"
 
 - name: 5.2 Sudo Configuration
   ansible.builtin.include_tasks: 5.2_sudo.yml
+  when: exorcism_section_5_2_sudo_enabled
   tags: "5.2_sudo"
 
 - name: 5.3 Password and User Account Security
   ansible.builtin.include_tasks: 5.3_password.yml
+  when: exorcism_section_5_3_password_enabled
   tags: "5.3_password"
 
 - name: 5.4 Password Expiration and Locking
   ansible.builtin.include_tasks: 5.4_password.yml
+  when: exorcism_section_5_4_password_enabled
   tags: "5.4_password"
 
 - name: 6.1 Logging
   ansible.builtin.include_tasks: 6.1_logging.yml
+  when: exorcism_section_6_1_logging_enabled
   tags: "6.1_logging"

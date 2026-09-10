@@ -35,8 +35,8 @@
   tags: 1.1_kernel_modules
 
 - name: 1.1.1.X Blacklist kernel modules
-  ansible.builtin.copy:
-    src: 90-modprobe.conf
+  ansible.builtin.template:
+    src: 90-modprobe.conf.j2
     dest: /etc/modprobe.d/90-modprobe.conf
     owner: root
     group: root
