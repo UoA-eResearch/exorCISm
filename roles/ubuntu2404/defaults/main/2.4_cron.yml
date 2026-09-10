@@ -1,0 +1,3 @@
+---
+# Additional users permitted to use crontab. Root is always included.
+exorcism_cron_allow_extra_users: []

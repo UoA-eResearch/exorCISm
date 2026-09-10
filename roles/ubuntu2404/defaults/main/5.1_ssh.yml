@@ -1,0 +1,11 @@
+---
+# Accounts permitted to log in over SSH. An empty list omits the AllowUsers
+# directive entirely, which permits all users. Setting it replaces the list.
+exorcism_ssh_allow_users: []
+
+# Applies sshd DisableForwarding. Bastion hosts need this set to false
+exorcism_ssh_disable_forwarding: true
+
+# Path on the managed host to a file of trusted SSH CA public keys. Empty means
+# no CA configuration is deployed. Placing the key file itself is out of scope.
+exorcism_ssh_trusted_user_ca_keys: ""

@@ -1,0 +1,11 @@
+---
+# Section toggles. Each controls whether a whole CIS section is applied.
+# Sections not listed here are always applied.
+
+# 2.3 Time synchronisation. Off by default because configuring a time daemon
+# without setting exorcism_ntp_servers would leave a host with no time source.
+exorcism_time_section_enabled: false
+
+# 4.4 Firewall. Off by default because the shipped rulesets set a default-DROP
+# policy and would cut a host off if applied without review.
+exorcism_firewall_section_enabled: false

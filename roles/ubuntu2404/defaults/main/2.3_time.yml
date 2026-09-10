@@ -1,0 +1,3 @@
+---
+# NTP sources for chrony. Empty means the role writes no server lines
+exorcism_ntp_servers: []

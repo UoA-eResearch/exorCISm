@@ -1,0 +1,3 @@
+---
+# Group whose members may use su, enforced via pam_wheel
+exorcism_su_group: sugroup

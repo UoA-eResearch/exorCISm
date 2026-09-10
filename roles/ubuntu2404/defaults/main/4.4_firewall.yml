@@ -1,0 +1,5 @@
+---
+# Whether the role owns the iptables rulesets. Both are ignored unless
+# exorcism_firewall_section_enabled is true.
+exorcism_firewall_manage_rules_ipv4: false
+exorcism_firewall_manage_rules_ipv6: false
