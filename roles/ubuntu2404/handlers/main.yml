@@ -29,3 +29,8 @@
     name: systemd-journald
     state: restarted
   tags: 6.1_logging
+
+- name: Update PAM configuration
+  ansible.builtin.command:
+    cmd: pam-auth-update --enable unix
+  changed_when: true
