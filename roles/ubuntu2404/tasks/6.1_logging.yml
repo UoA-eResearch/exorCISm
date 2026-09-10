@@ -19,7 +19,7 @@
   tags: 6.1_logging
 
 - name: 6.1.2.1.3 Ensure systemd-journal-upload is enabled and active
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: systemd-journal-upload
     state: stopped
     enabled: false
