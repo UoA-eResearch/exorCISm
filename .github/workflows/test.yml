@@ -1,0 +1,22 @@
+name: Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # The declared floor, the release where the templating rewrite most often
+        # breaks collections, and current. Wildcards track patch releases.
+        ansible-core: ["2.16.*", "2.19.*", "2.21.*"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      # The runner is itself a disposable Ubuntu 24.04 machine, so it is the dry
+      # run target. A dry run is the only check that opens the section files.
+      - run: make test TARGET=localhost ANSIBLE_CORE=${{ matrix.ansible-core }}

@@ -1,0 +1,26 @@
+name: Main
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".ansible-lint"
+      - ".github/workflows/**"
+      - "CHANGELOG.md"
+      - "Makefile"
+      - "galaxy.yml"
+      - "meta/**"
+      - "playbooks/**"
+      - "pyproject.toml"
+      - "roles/**"
+      - "uv.lock"
+
+concurrency:
+  group: main-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+  test:
+    uses: ./.github/workflows/test.yml
