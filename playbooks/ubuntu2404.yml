@@ -1,0 +1,6 @@
+---
+- name: Apply CIS hardening to Ubuntu 24.04 hosts
+  hosts: all
+  become: true
+  roles:
+    - role: ubuntu2404
