@@ -1,14 +1,15 @@
 # exorCISm
 
-CIS Benchmark hardening for Linux, packaged as one Ansible role per operating system target. The collection is `uoa_eresearch.exorcism`, and the role for Ubuntu 24.04 LTS is `ubuntu2404`.
+CIS Benchmark hardening for Centre for eResearch-managed servers
 
-Running the role with its shipped defaults gives a sensibly hardened host. It does not implement every CIS control, because some of them break working systems. Controls that carry that risk are opt-in, and everything the role cannot guess is a variable you supply.
+- Packaged as one Ansible role per operating system target
+- Running the role with its shipped defaults gives a sensibly hardened host
+- It does not implement every CIS control, because some of them break working systems
+- Controls that carry that risk are opt-in
 
 ## Requirements
 
-- ansible-core 2.15 or later on the machine you run from
-- Ubuntu 24.04 LTS on the target hosts
-- An account on the target that can escalate to root
+- ansible-core
 
 ## Installing the collection
 
@@ -119,7 +120,7 @@ The role changes SSH configuration, so it is worth being deliberate about how yo
 | `--private-key ~/.ssh/id_ed25519` | Use a specific SSH key |
 | `-k` | Prompt for the SSH password instead of using a key |
 | `-K` | Prompt for the sudo password on the target |
-| `--become-user postgres` | Escalate to a user other than root |
+| `--become-user admin` | Escalate to a user other than root |
 
 A typical first run against an unfamiliar host, prompting for both passwords:
 
