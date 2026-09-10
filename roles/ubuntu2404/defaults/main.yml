@@ -6,7 +6,7 @@
 # the OS-level hardening controls without granting or revoking access to any
 # particular account, host or network.
 
-# --- Section toggles -------------------------------------------------------
+# SECTION TOGGLES
 # 2.3 Time synchronisation. Disabled by default: configuring chrony without
 # setting exorcism_ntp_servers would leave a host with no time source.
 exorcism_time_section_enabled: false
@@ -17,24 +17,24 @@ exorcism_firewall_section_enabled: false
 exorcism_firewall_manage_rules_ipv4: false
 exorcism_firewall_manage_rules_ipv6: false
 
-# --- 1.6 Banners -----------------------------------------------------------
+# 1.6 BANNERS
 # Written to /etc/motd, /etc/issue and /etc/issue.net.
 exorcism_banner_text: "Authorized users only. All activity may be monitored and reported."
 
-# --- 2.3 Time synchronisation ----------------------------------------------
+# 2.3 TIME SYNCHRONISATION
 # NTP sources for chrony. Empty means the role writes no server lines.
 exorcism_ntp_servers: []
 
-# --- 2.4 Cron --------------------------------------------------------------
+# 2.4 CRON
 # Additional users permitted to use crontab. Root is always included.
 exorcism_cron_allow_extra_users: []
 
-# --- 3.3 Network -----------------------------------------------------------
+# 3.3 NETWORK
 # Hosts that route traffic (Docker, KVM, k3s, NAT) need forwarding enabled.
 exorcism_ipv4_ip_forward: 0
 exorcism_ipv6_forwarding: 0
 
-# --- 5.1 SSH ---------------------------------------------------------------
+# 5.1 SSH
 # Accounts permitted to log in over SSH. An empty list omits the AllowUsers
 # directive entirely, which permits all users; setting it REPLACES the list.
 exorcism_ssh_allow_users: []
@@ -47,11 +47,11 @@ exorcism_ssh_disable_forwarding: true
 # of scope for this role.
 exorcism_ssh_trusted_user_ca_keys: ""
 
-# --- 5.2 Sudo --------------------------------------------------------------
+# 5.2 SUDO
 # Group whose members may use su, enforced via pam_wheel.
 exorcism_su_group: sugroup
 
-# --- 5.4 Password and account policy ---------------------------------------
+# 5.4 PASSWORD AND ACCOUNT POLICY
 # Days of inactivity after which an account is locked.
 exorcism_inactive_password_lock_days: 45
 
