@@ -1,0 +1,193 @@
+---
+argument_specs:
+  main:
+    short_description: CIS Benchmark hardening for Ubuntu 24.04 LTS
+    description:
+      - Applies CIS Ubuntu 24.04 LTS Benchmark controls.
+      - Running with the shipped defaults hardens a host without requiring configuration.
+      - Controls that can break a working system are opt-in.
+    author:
+      - University of Auckland, Centre for eResearch
+    options:
+
+      exorcism_section_1_1_kernel_modules_enabled:
+        type: bool
+        default: true
+        description: Apply section 1.1, which blocks filesystem and hardware kernel modules from loading.
+
+      exorcism_section_1_5_core_dumps_enabled:
+        type: bool
+        default: true
+        description: Apply section 1.5, which restricts core dumps and enables address space layout randomisation.
+
+      exorcism_section_1_6_banner_enabled:
+        type: bool
+        default: true
+        description: Apply section 1.6, which writes the login warning banners.
+
+      exorcism_section_2_2_clients_enabled:
+        type: bool
+        default: true
+        description: Apply section 2.2, which removes insecure client packages.
+
+      exorcism_section_2_3_time_enabled:
+        type: bool
+        default: true
+        description: Apply section 2.3, which ensures a single time synchronisation daemon is in use.
+
+      exorcism_section_2_4_cron_enabled:
+        type: bool
+        default: true
+        description: Apply section 2.4, which restricts cron permissions and access.
+
+      exorcism_section_3_3_net_enabled:
+        type: bool
+        default: true
+        description: Apply section 3.3, which applies network kernel parameters.
+
+      exorcism_section_4_4_firewall_enabled:
+        type: bool
+        default: false
+        description:
+          - Apply section 4.4, which makes the role own the host iptables rulesets.
+          - Off by default because a default-DROP policy can cut a host off if applied without review.
+
+      exorcism_section_5_1_ssh_enabled:
+        type: bool
+        default: true
+        description: Apply section 5.1, which configures the SSH daemon.
+
+      exorcism_section_5_2_sudo_enabled:
+        type: bool
+        default: true
+        description: Apply section 5.2, which configures sudo logging and restricts su.
+
+      exorcism_section_5_3_password_enabled:
+        type: bool
+        default: true
+        description: Apply section 5.3, which configures PAM password quality, history and lockout.
+
+      exorcism_section_5_4_password_enabled:
+        type: bool
+        default: true
+        description: Apply section 5.4, which configures password ageing, umask and shell timeout.
+
+      exorcism_section_6_1_logging_enabled:
+        type: bool
+        default: true
+        description: Apply section 6.1, which configures journald and log file permissions.
+
+      exorcism_blacklist_kernel_modules:
+        type: list
+        elements: str
+        default: [cramfs, freevxfs, hfs, hfsplus, jffs2, overlay, squashfs, udf, usb-storage]
+        description: Kernel modules prevented from loading. Remove entries using the exclude list rather than by rewriting this.
+
+      exorcism_blacklist_kernel_modules_exclude:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Modules to leave loadable, subtracted from the blacklist.
+          - Container hosts need overlay. Hosts using snaps need squashfs.
+
+      exorcism_banner_text:
+        type: str
+        default: Authorized users only. All activity may be monitored and reported.
+        description: Text written to /etc/motd, /etc/issue and /etc/issue.net.
+
+      exorcism_time_daemon:
+        type: str
+        default: auto
+        choices: [auto, timesyncd, chrony]
+        description:
+          - Which time synchronisation daemon to configure.
+          - auto uses whichever is already present and never switches daemons.
+          - Setting timesyncd or chrony explicitly stops and masks the other.
+
+      exorcism_ntp_servers:
+        type: list
+        elements: str
+        default: []
+        description: NTP sources. Empty leaves the daemon's own configuration alone.
+
+      exorcism_cron_allow_extra_users:
+        type: list
+        elements: str
+        default: []
+        description: Users permitted to use crontab in addition to root.
+
+      exorcism_ipv4_ip_forward:
+        type: int
+        default: 0
+        choices: [0, 1]
+        description: Value for net.ipv4.ip_forward. Hosts that route traffic, such as Docker, KVM or NAT, need 1.
+
+      exorcism_ipv6_forwarding:
+        type: int
+        default: 0
+        choices: [0, 1]
+        description: Value for net.ipv6.conf.all.forwarding.
+
+      exorcism_firewall_allowed_tcp_ports:
+        type: list
+        elements: int
+        default: [22]
+        description: Inbound TCP ports accepted. Everything else is dropped by the default policy.
+
+      exorcism_firewall_allow_all_outbound:
+        type: bool
+        default: true
+        description:
+          - Whether the host may open new outbound connections, implementing CIS 4.4.2.3.
+          - Set false for egress filtering, where every permitted destination must be named in the extra rules.
+
+      exorcism_firewall_extra_rules_v4:
+        type: list
+        elements: str
+        default: []
+        description: Extra IPv4 rules appended to the filter table, in iptables-save syntax.
+
+      exorcism_firewall_extra_rules_v6:
+        type: list
+        elements: str
+        default: []
+        description: Extra IPv6 rules appended to the filter table, in ip6tables-save syntax.
+
+      exorcism_ssh_allow_users:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Accounts permitted to log in over SSH.
+          - An empty list omits the AllowUsers directive, which permits all users. Setting it replaces the list.
+
+      exorcism_ssh_disable_forwarding:
+        type: bool
+        default: true
+        description: Applies sshd DisableForwarding. Bastion hosts need this set to false.
+
+      exorcism_su_group:
+        type: str
+        default: sugroup
+        description:
+          - Group whose members may use su, enforced by pam_wheel.
+          - CIS expects this group to be empty, so that sudo is used instead of su.
+
+      exorcism_inactive_password_lock_days:
+        type: int
+        default: 45
+        description: Days of inactivity after which an account with a local password is locked.
+
+      exorcism_default_umask:
+        type: str
+        default: "027"
+        description:
+          - Default umask applied via /etc/profile and /etc/login.defs.
+          - Quote the value. An unquoted 027 is read as octal and becomes 23.
+
+      exorcism_password_excluded_users:
+        type: list
+        elements: str
+        default: []
+        description: Service accounts with UID 1000 or above exempt from password ageing and inactivity locking.
