@@ -1,57 +1,83 @@
 ---
-- name: 2.3.1.1 Ensure a single time synchronization daemon is in use (install chrony)
+- name: Gather service facts
+  ansible.builtin.service_facts:
+  tags: 2.3_time
+
+# "auto" deliberately never switches daemons. Picking a default and enforcing it
+# would stop and mask a working daemon on any host that already made a choice.
+- name: 2.3.1.1 Resolve which time synchronisation daemon is in use
+  ansible.builtin.set_fact:
+    exorcism_time_daemon_resolved: >-
+      {{ exorcism_time_daemon if exorcism_time_daemon != 'auto'
+         else 'chrony' if 'chrony.service' in ansible_facts.services
+         else 'timesyncd' }}
+  tags: 2.3_time
+
+- name: 2.3.1.1 Ensure chrony is installed
   ansible.builtin.apt:
-    pkg:
-      - chrony
-    state: latest
-    update_cache: true
+    name: chrony
+    state: present
+  when: exorcism_time_daemon_resolved == 'chrony'
   tags: 2.3_time
 
-- name: 2.3.1.1 Ensure a single time synchronization daemon is in use (check systemd-timesyncd)
-  ansible.builtin.shell: "systemctl list-unit-files | grep -q '^systemd-timesyncd.service'"
-  register: exorcism_timesyncd_check
-  failed_when: false
-  changed_when: false
-  tags: 2.3_time
-
-- name: 2.3.1.1 Ensure a single time synchronization daemon is in use (stop systemd-timesyncd)
-  ansible.builtin.systemd:
+- name: 2.3.1.1 Ensure a single time synchronisation daemon is in use (mask timesyncd)
+  ansible.builtin.systemd_service:
     name: systemd-timesyncd.service
     state: stopped
-  when: exorcism_timesyncd_check.rc == 0
+    masked: true
+  when:
+    - exorcism_time_daemon != 'auto'
+    - exorcism_time_daemon_resolved == 'chrony'
+    - "'systemd-timesyncd.service' in ansible_facts.services"
   tags: 2.3_time
 
-- name: 2.3.1.1 Ensure a single time synchronization daemon is in use (mask systemd-timesyncd)
-  ansible.builtin.systemd:
-    name: systemd-timesyncd.service
-    masked: yes
-  when: exorcism_timesyncd_check.rc == 0
+- name: 2.3.1.1 Ensure a single time synchronisation daemon is in use (mask chrony)
+  ansible.builtin.systemd_service:
+    name: chrony.service
+    state: stopped
+    masked: true
+  when:
+    - exorcism_time_daemon != 'auto'
+    - exorcism_time_daemon_resolved == 'timesyncd'
+    - "'chrony.service' in ansible_facts.services"
   tags: 2.3_time
 
-- name: 2.3.3.1 Ensure chrony is configured with authorized timeserver
+# Files under sources.d must use the .sources suffix and may contain only
+# server, pool and peer directives. Anything else is silently not read.
+- name: 2.3.2.1 Ensure chrony is configured with authorised timeservers
+  ansible.builtin.template:
+    src: chrony.sources.j2
+    dest: /etc/chrony/sources.d/exorcism.sources
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chrony
+  when:
+    - exorcism_time_daemon_resolved == 'chrony'
+    - exorcism_ntp_servers | length > 0
+  tags: 2.3_time
+
+- name: 2.3.3.1 Ensure timesyncd configuration directory exists
   ansible.builtin.file:
-    path: /etc/chrony/sources.d/
+    path: /etc/systemd/timesyncd.conf.d
     state: directory
     owner: root
     group: root
     mode: "0755"
+  when:
+    - exorcism_time_daemon_resolved == 'timesyncd'
+    - exorcism_ntp_servers | length > 0
   tags: 2.3_time
 
-- name: 2.3.2.1 Ensure chrony is configured with authorized timeserver
+- name: 2.3.3.1 Ensure systemd-timesyncd is configured with authorised timeservers
   ansible.builtin.template:
-    src: 90-chrony.conf.j2
-    dest: /etc/chrony/sources.d/90-chrony.conf
+    src: timesyncd.conf.j2
+    dest: /etc/systemd/timesyncd.conf.d/90-exorcism.conf
     owner: root
     group: root
     mode: "0644"
-    force: true
-  notify: Restart chrony
-  tags: 2.3_time
-
-# TEMP
-# Remove any existing timesyncd config overrides
-- name: 2.3.X Remove existing timesyncd config overrides
-  ansible.builtin.file:
-    path: /etc/systemd/timesyncd.conf.d/90-timesync.conf
-    state: absent
+  notify: Restart timesyncd
+  when:
+    - exorcism_time_daemon_resolved == 'timesyncd'
+    - exorcism_ntp_servers | length > 0
   tags: 2.3_time

@@ -14,9 +14,7 @@ exorcism_section_1_6_banner_enabled: true
 
 exorcism_section_2_2_clients_enabled: true
 
-# Off by default: configuring a time daemon without setting
-# exorcism_ntp_servers would leave a host with no time source
-exorcism_section_2_3_time_enabled: false
+exorcism_section_2_3_time_enabled: true
 
 exorcism_section_2_4_cron_enabled: true
 

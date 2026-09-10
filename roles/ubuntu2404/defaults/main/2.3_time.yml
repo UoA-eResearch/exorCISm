@@ -1,3 +1,10 @@
 ---
-# NTP sources for chrony. Empty means the role writes no server lines
+# Which time daemon to configure. "auto" uses whichever is already present and
+# never switches, so a stock Ubuntu host stays on systemd-timesyncd and a host
+# already running chrony keeps it. Set timesyncd or chrony explicitly to switch,
+# which stops and masks the other daemon.
+exorcism_time_daemon: auto
+
+# NTP sources. Empty leaves the daemon's own configuration alone, which on
+# Ubuntu means the servers shipped with the distribution.
 exorcism_ntp_servers: []
