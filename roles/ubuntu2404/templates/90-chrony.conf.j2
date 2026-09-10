@@ -9,7 +9,7 @@ server {{ server }} iburst
 # Record the rate at which the system clock gains/losses time.
 driftfile /var/lib/chrony/drift
 
-# Enable kernel RTC synchronization.
+# Enable kernel RTC synchronisation.
 rtcsync
 
 # In first 3 updates step the system clock instead of slew
@@ -19,7 +19,7 @@ makestep 10 3
 bindcmdaddress 127.0.0.1
 bindcmdaddress ::1
 
-# Serve time even if not synchronized to any NTP server.
+# Serve time even if not synchronised to any NTP server.
 local stratum 10
 
 keyfile /etc/chrony/chrony.keys

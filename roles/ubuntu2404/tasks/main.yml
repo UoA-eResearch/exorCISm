@@ -15,7 +15,7 @@
   ansible.builtin.include_tasks: 2.2_clients.yml
   tags: "2.2_clients"
 
-- name: 2.3 Time Synchronization
+- name: 2.3 Time Synchronisation
   ansible.builtin.include_tasks: 2.3_time.yml
   when: exorcism_time_section_enabled
   tags: "2.3_time"
