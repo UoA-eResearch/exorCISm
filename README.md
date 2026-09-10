@@ -6,7 +6,7 @@ Running the role with its shipped defaults gives a sensibly hardened host. It do
 
 ## Requirements
 
-- ansible-core 2.15 or later
+- ansible-core 2.16 or later
 
 ## Install
 

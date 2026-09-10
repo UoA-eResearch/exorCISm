@@ -1,4 +1,6 @@
 ---
-# Minimum ansible-core the collection is supported on. Deliberately permissive:
-# the roles use only ansible.builtin modules available well before this floor.
-requires_ansible: ">=2.15.0"
+# Minimum ansible-core the collection is supported on. 2.16 is what Ubuntu 24.04
+# packages, so a colleague can apt install ansible-core on the same operating
+# system they are hardening. Upstream maintains only 2.19 and later, so this floor
+# is a deliberate exception that CI covers rather than assumes.
+requires_ansible: ">=2.16.0"
