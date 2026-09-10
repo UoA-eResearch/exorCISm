@@ -37,15 +37,3 @@
     force: true
   notify: Restart sshd
   tags: 5.1_ssh
-
-- name: 5.1.X Copy 95-ca.conf with SSH CA configuration
-  ansible.builtin.template:
-    src: 95-ca.conf.j2
-    dest: /etc/ssh/sshd_config.d/95-ca.conf
-    owner: root
-    group: root
-    mode: "0600"
-    force: true
-  notify: Restart sshd
-  when: exorcism_ssh_trusted_user_ca_keys | length > 0
-  tags: 5.1_ssh

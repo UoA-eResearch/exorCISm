@@ -1,6 +1,0 @@
-# SSH Certificate Authority Configuration
-# This is in a dedicated file, as sshd will only load one TrustedUserCAKeys directive
-#
-# If you want multiple CAs, you need to combine them into a single pem file
-# where each line is a separate CA public key
-TrustedUserCAKeys {{ exorcism_ssh_trusted_user_ca_keys }}
