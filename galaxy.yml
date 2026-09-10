@@ -34,6 +34,16 @@ build_ignore:
   - .gitignore
   - .ansible-lint
   - "*.tar.gz"
+  # Development tooling and the directories it works in. A consumer reads none of
+  # it, and .ansible and .venv are large enough to swamp the archive if left in:
+  # together they are 5000 of the 5139 entries an unfiltered build produces.
+  - .ansible
+  - .python-version
+  - .venv
+  - Makefile
+  - dist
+  - pyproject.toml
+  - uv.lock
   # Reference and working material that must not be redistributed. The git
   # exclude file does not apply here: collection builds obey this list alone.
   - "*.pdf"
