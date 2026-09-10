@@ -1,0 +1,17 @@
+---
+# Filesystem and hardware modules prevented from loading. Each becomes an
+# "install <module> /bin/false" and a "blacklist <module>" line.
+exorcism_blacklist_kernel_modules:
+  - cramfs
+  - freevxfs
+  - hfs
+  - hfsplus
+  - jffs2
+  - overlay
+  - squashfs
+  - udf
+  - usb-storage
+
+# Modules to leave loadable, removed from the list above. Container hosts need
+# overlay, and hosts that use snaps need squashfs.
+exorcism_blacklist_kernel_modules_exclude: []
