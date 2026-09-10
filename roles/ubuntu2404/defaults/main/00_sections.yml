@@ -1,11 +1,37 @@
 ---
 # Section toggles. Each controls whether a whole CIS section is applied.
-# Sections not listed here are always applied.
+# Numbers match the CIS Ubuntu 24.04 benchmark, the task file names and the
+# task tags, so a section can be traced from here to the controls it applies.
+#
+# Two sections are off by default because enabling them unconfigured would
+# leave a host worse off than not running them at all.
 
-# 2.3 Time synchronisation. Off by default because configuring a time daemon
-# without setting exorcism_ntp_servers would leave a host with no time source.
-exorcism_time_section_enabled: false
+exorcism_section_1_1_kernel_modules_enabled: true
 
-# 4.4 Firewall. Off by default because the shipped rulesets set a default-DROP
-# policy and would cut a host off if applied without review.
-exorcism_firewall_section_enabled: false
+exorcism_section_1_5_core_dumps_enabled: true
+
+exorcism_section_1_6_banner_enabled: true
+
+exorcism_section_2_2_clients_enabled: true
+
+# Off by default: configuring a time daemon without setting
+# exorcism_ntp_servers would leave a host with no time source
+exorcism_section_2_3_time_enabled: false
+
+exorcism_section_2_4_cron_enabled: true
+
+exorcism_section_3_3_net_enabled: true
+
+# Off by default: the shipped rulesets set a default-DROP policy and would
+# cut a host off if applied without review
+exorcism_section_4_4_firewall_enabled: false
+
+exorcism_section_5_1_ssh_enabled: true
+
+exorcism_section_5_2_sudo_enabled: true
+
+exorcism_section_5_3_password_enabled: true
+
+exorcism_section_5_4_password_enabled: true
+
+exorcism_section_6_1_logging_enabled: true
