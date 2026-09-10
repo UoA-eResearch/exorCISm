@@ -5,6 +5,9 @@
   register: exorcism_journal_remote_check
   failed_when: false
   changed_when: false
+  # Runs during a dry run as well: skipped, it registers nothing and the tasks
+  # that read it silently skip instead of reporting what they would change.
+  check_mode: false
   tags: 6.1_logging
 
 - name: 6.1.2.1.1 Ensure systemd-journal-remote is installed
