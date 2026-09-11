@@ -1,0 +1,17 @@
+# Development tooling only. The collection itself ships no Python, and this
+# project is never built, installed or published. It exists so that ansible-lint
+# and ansible-core resolve to identical versions on a workstation and on a CI
+# runner, which is the only way to stop a tooling release turning CI red on a
+# commit that changed nothing.
+[project]
+name = "exorcism-tooling"
+# Not the collection version, which lives in galaxy.yml and is read by the
+# get_version make target. Nothing consumes this field; PEP 621 just requires it.
+version = "0"
+requires-python = ">=3.12"
+
+[dependency-groups]
+dev = [
+  "ansible-core>=2.21",
+  "ansible-lint>=26.8",
+]

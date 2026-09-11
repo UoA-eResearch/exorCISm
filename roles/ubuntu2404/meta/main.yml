@@ -3,7 +3,7 @@ galaxy_info:
   author: University of Auckland, Centre for eResearch
   description: CIS Benchmark hardening for Ubuntu 24.04 LTS
   license: MIT
-  min_ansible_version: "2.15"
+  min_ansible_version: "2.16"
   platforms:
     - name: Ubuntu
       versions:

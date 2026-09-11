@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  workflow_call:
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - run: make check_version_tag TAG=${{ github.ref_name }}
+      - run: make check_version
+      - run: make build
+      - name: Publish the release
+        run: |
+          make get_changelog > release-notes.md
+          gh release create "${{ github.ref_name }}" dist/*.tar.gz \
+            --title "${{ github.ref_name }}" --notes-file release-notes.md
