@@ -8,11 +8,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-    env:
-      # A localhost named in an inventory is an ordinary host and is reached over
-      # SSH. Only the implicit localhost defaults to a local connection, so the
-      # transport has to be set here or the job fails on host key verification.
-      ANSIBLE_TRANSPORT: local
     strategy:
       fail-fast: false
       matrix:
@@ -22,6 +17,4 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
-      # The runner is itself a disposable Ubuntu 24.04 machine, so it is the dry
-      # run target. A dry run is the only check that opens the section files.
-      - run: make test TARGET=localhost ANSIBLE_CORE=${{ matrix.ansible-core }}
+      - run: make test ANSIBLE_CORE=${{ matrix.ansible-core }}

@@ -12,6 +12,7 @@ on:
       - "playbooks/**"
       - "pyproject.toml"
       - "roles/**"
+      - "tests/**"
       - "uv.lock"
 
 concurrency:
