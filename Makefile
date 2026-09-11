@@ -93,7 +93,7 @@ get_changelog: ## Print the changelog section for the current version
 
 ##@ CI
 .PHONY: ci
-ci: lint test ## Run everything CI runs; needs TARGET for the dry run
+ci: lint check_version test ## Run everything CI runs; needs TARGET for the dry run
 
 .PHONY: clean
 clean: ## Remove build output and the lint cache
