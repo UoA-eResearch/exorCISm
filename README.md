@@ -1,12 +1,16 @@
 # exorCISm
 
-CIS Benchmark hardening for Linux, packaged as one Ansible role per operating system target. The collection is `uoa_eresearch.exorcism`, and the role for Ubuntu 24.04 LTS is `ubuntu2404`.
+![Release Build](https://img.shields.io/github/actions/workflow/status/UoA-eResearch/exorCISm/tag.yml?style=flat&label=release&logo=github) ![Main Build](https://img.shields.io/github/actions/workflow/status/UoA-eResearch/exorCISm/main.yml?style=flat&label=main&logo=github)
 
-Running the role with its shipped defaults gives a sensibly hardened host. It does not implement every CIS control, because some of them break working systems. Controls that carry that risk are opt-in, and everything the role cannot guess is a variable you supply.
+CIS Benchmark hardening, packaged as one Ansible role per operating system target. 
+
+The collection is `uoa_eresearch.exorcism`, and the role for Ubuntu 24.04 LTS is `ubuntu2404`. Running the role with its shipped defaults gives a sensibly hardened host. It does not implement every CIS control, because some of them break working systems. Controls that carry that risk are opt-in, and everything the role cannot guess is a variable you supply.
 
 ## Requirements
 
-- ansible-core 2.16 or later
+- ansible-core 2.16 or later, which is the version Ubuntu 24.04 packages
+
+Every change is tested against ansible-core 2.16, 2.19 and 2.21. Older versions may work and are not checked, so `ansible-galaxy` warns and continues on those.
 
 ## Install
 
@@ -14,7 +18,20 @@ Running the role with its shipped defaults gives a sensibly hardened host. It do
 ansible-galaxy collection install git+https://github.com/UoA-eResearch/exorCISm.git
 ```
 
-To pin it in a project, add a git entry to your `requirements.yml` and install with `ansible-galaxy collection install -r requirements.yml`.
+That tracks the default branch. Pin to a release instead, so an upstream change cannot alter what a host gets on the next run.
+
+```sh
+ansible-galaxy collection install git+https://github.com/UoA-eResearch/exorCISm.git,v0.1.0
+```
+
+To pin it in a project, put the same reference in `requirements.yml` and install with `ansible-galaxy collection install -r requirements.yml`.
+
+```yaml
+collections:
+  - name: https://github.com/UoA-eResearch/exorCISm.git
+    type: git
+    version: v0.1.0
+```
 
 ## Quick start
 
