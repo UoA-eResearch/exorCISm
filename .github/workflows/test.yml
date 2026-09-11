@@ -8,6 +8,11 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
+    env:
+      # A localhost named in an inventory is an ordinary host and is reached over
+      # SSH. Only the implicit localhost defaults to a local connection, so the
+      # transport has to be set here or the job fails on host key verification.
+      ANSIBLE_TRANSPORT: local
     strategy:
       fail-fast: false
       matrix:
