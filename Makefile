@@ -7,6 +7,7 @@ VERSION := $(shell awk '/^version:/ { print $$2; exit }' galaxy.yml)
 
 DIST_DIR := dist
 COLLECTIONS_DIR := $(DIST_DIR)/collections
+TARBALL := $(DIST_DIR)/$(NAMESPACE)-$(COLLECTION)-$(VERSION).tar.gz
 CONTAINER := $(COLLECTION)-test
 
 PYTHON ?= 3.12
@@ -28,7 +29,12 @@ build: ## Build the collection tarball into dist/
 .PHONY: test
 test: build ## Dry run the role in a throwaway Ubuntu 24.04 container
 	@rm -rf $(COLLECTIONS_DIR)
-	$(UV_ANSIBLE) ansible-galaxy collection install $(DIST_DIR)/*.tar.gz -p $(COLLECTIONS_DIR)
+	# Name the tarball rather than glob it, because dist/ keeps every version
+	# ever built and a glob asks galaxy to resolve all of them at once.
+	# --force because galaxy resolves "already installed" against the configured
+	# collections path as well as -p, so a copy in ~/.ansible makes this a no-op
+	# and the playbook is then not found.
+	$(UV_ANSIBLE) ansible-galaxy collection install $(TARBALL) -p $(COLLECTIONS_DIR) --force
 	$(UV_ANSIBLE) ansible-galaxy collection install community.docker -p $(COLLECTIONS_DIR)
 	docker build --quiet --tag $(CONTAINER) tests
 	-@docker rm --force $(CONTAINER) >/dev/null 2>&1
