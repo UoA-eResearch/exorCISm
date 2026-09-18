@@ -47,34 +47,91 @@
   notify: Restart journald
   tags: 6.1_logging
 
-- name: 6.1.4.1 Ensure access to all logfiles has been configured (directories)
-  ansible.builtin.file:
+# Stat first so the label below can name the mode each directory is coming
+# from, the same way the file loop further down does.
+- name: 6.1.4.1 Read the current log directory permissions
+  ansible.builtin.stat:
     path: "{{ item }}"
-    state: directory
-    mode: "0750"
-    recurse: false
   loop:
     - /var/log/unattended-upgrades/
     - /var/log/installer/
     - /var/log/installer/block/
-  failed_when: false
-  tags: 6.1_logging
-
-- name: 6.1.4.1 Ensure access to all logfiles has been configured (all files in /var/log)
-  ansible.builtin.shell: |
-    find /var/log -type f \( -perm /137 -o ! -perm -640 \) -exec chmod 0640 {} \;
-  failed_when: false
+  register: exorcism_log_directories
   changed_when: false
   tags: 6.1_logging
 
-- name: 6.1.4.1 Ensure access to all logfiles has been configured (individual files)
+- name: 6.1.4.1 Ensure access to all logfiles has been configured (directories)
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ item.item }}"
+    state: directory
+    mode: "0750"
+    recurse: false
+  loop: "{{ exorcism_log_directories.results }}"
+  loop_control:
+    label: "{{ item.item }} {{ item.stat.mode | default('absent') }} -> 0750"
+  diff: false
+  failed_when: false
+  tags: 6.1_logging
+
+# Two tasks rather than one find -exec chmod, so that a dry run reports the
+# files it would touch. A single shell task is skipped in check mode, which
+# hid the largest change this role makes to /var/log.
+#
+# -printf carries the current mode back with each path, so the task below can
+# label every file with what it is changing from. Without it the only way to
+# show the before value is the module diff, which is a six line JSON block per
+# file and buries a run that touches a hundred of them.
+#
+# -perm /137 matches only files carrying a bit the control forbids: owner
+# execute, group write or execute, or anything for other. Testing for "not
+# already 0640" instead would also match the files shipped tighter than that,
+# such as boot.log at 0600 and the installer's autoinstall-user-data at 0400,
+# and setting those to 0640 loosens them. The control is a ceiling, not a
+# target, so a file already below it is left alone.
+- name: 6.1.4.1 Find logfiles with permissions wider than 0640
+  ansible.builtin.command:
+    argv:
+      - find
+      - /var/log
+      - -type
+      - f
+      - '!'
+      - -name
+      - lastlog*
+      - '!'
+      - -name
+      - btmp*
+      - '!'
+      - -name
+      - wtmp*
+      - -perm
+      - /137
+      - -printf
+      - "%m %p\n"
+  register: exorcism_wide_logfiles
+  failed_when: false
+  changed_when: false
+  # Read-only, so it runs during a dry run too. Without this it registers
+  # nothing and the task below has no list to report on.
+  check_mode: false
+  tags: 6.1_logging
+
+# lastlog, btmp and wtmp are excluded above, rotated copies included. They are
+# owned by the utmp group and read through it by lastlog(1) and last(1), so
+# 0640 root:utmp breaks both for every non-root user. Their shipped modes
+# already satisfy the control.
+#
+# diff is off because the label carries the same information in one line. The
+# mode arrives from find as %m, which drops the leading zero, so pad it back.
+- name: 6.1.4.1 Ensure access to all logfiles has been configured (all files in /var/log)
+  ansible.builtin.file:
+    path: "{{ exorcism_logfile.1 }}"
     mode: "0640"
-  loop:
-    - /var/log/dpkg.log
-    - /var/log/alternatives.log
-    - /var/log/faillog
-    - /var/log/bootstrap.log
+  loop: "{{ exorcism_wide_logfiles.stdout_lines | default([]) }}"
+  vars:
+    exorcism_logfile: "{{ item.split(' ', 1) }}"
+  loop_control:
+    label: "{{ exorcism_logfile.1 }} {{ '%04d' | format(exorcism_logfile.0 | int) }} -> 0640"
+  diff: false
   failed_when: false
   tags: 6.1_logging

@@ -26,9 +26,35 @@
     state: present
   tags: 1.5_core_dumps
 
-- name: 1.5.5 Ensure Automatic Error Reporting is not enabled
+# CIS accepts either removing apport or leaving it installed with reporting
+# switched off. Removal is the default because it is the stronger of the two,
+# but it cascades on desktop and DGX images, so the second path exists.
+- name: 1.5.5 Ensure Automatic Error Reporting is not enabled (remove apport)
   ansible.builtin.apt:
     name: apport
     state: absent
     purge: true
+  when: exorcism_remove_apport
   tags: 1.5_core_dumps
+
+- name: 1.5.5 Ensure Automatic Error Reporting is not enabled (disable apport)
+  when: not exorcism_remove_apport
+  tags: 1.5_core_dumps
+  block:
+    - name: 1.5.5 Set enabled=0 in /etc/default/apport
+      ansible.builtin.lineinfile:
+        path: /etc/default/apport
+        regexp: ^enabled=
+        line: enabled=0
+        owner: root
+        group: root
+        mode: "0644"
+        create: true
+
+    - name: 1.5.5 Ensure the apport service is stopped and masked
+      ansible.builtin.systemd_service:
+        name: apport.service
+        state: stopped
+        enabled: false
+        masked: true
+      failed_when: false

@@ -1,7 +1,7 @@
 ---
 - name: 1.6.1 Ensure message of the day is configured properly
   ansible.builtin.template:
-    src: banner.j2
+    src: motd.j2
     dest: /etc/motd
     owner: root
     group: root

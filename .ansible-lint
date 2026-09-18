@@ -3,6 +3,9 @@ profile: production
 
 exclude_paths:
   - .github/
+  # Personal inventories, not part of the collection. Site banners legitimately
+  # carry trailing whitespace, which the yaml rules reject.
+  - local/
   # Written to be copied out of the collection, so it references the role by
   # its full name. That cannot resolve when linting from the source tree,
   # where the collection is not installed under ansible_collections/.

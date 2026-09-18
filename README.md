@@ -63,8 +63,12 @@ Every variable is optional. Running the role with none set still hardens the hos
 | `exorcism_ntp_servers` | `[]` | You have internal time servers |
 | `exorcism_password_excluded_users` | `[]` | Service accounts must not have passwords expire or lock |
 | `exorcism_ssh_disable_forwarding` | `true` | It is a bastion, or users need port forwarding. Set `false` |
+| `exorcism_rp_filter` | `1` | The host is multi-homed and routes asymmetrically. Set `2` for loose mode |
+| `exorcism_ipv6_accept_ra` | `0` | The host gets its IPv6 address by SLAAC. Set `1`, or it loses that address on the next boot |
+| `exorcism_remove_apport` | `true` | It is a desktop or DGX image, where purging `apport` takes metapackages with it. Set `false` |
+| `exorcism_motd_text` | the warning banner | The site has its own `/etc/motd`, such as a name or ASCII logo, which the role otherwise overwrites |
 
-For a worked example covering these in context, see [playbooks/ubuntu2404_example.yml](playbooks/ubuntu2404_example.yml). For the complete reference of all 31 variables with types, defaults and permitted values, run `ansible-doc -t role uoa_eresearch.exorcism.ubuntu2404`.
+For a worked example covering these in context, see [playbooks/ubuntu2404_example.yml](playbooks/ubuntu2404_example.yml). For the complete reference of all 35 variables with types, defaults and permitted values, run `ansible-doc -t role uoa_eresearch.exorcism.ubuntu2404`.
 
 Variables fall into three kinds. Some are values the role cannot guess. Some are controls applied by default that you turn off when one breaks something. The rest are extra hardening left off by default because it can break a working system.
 

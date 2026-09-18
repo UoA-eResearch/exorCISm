@@ -1,3 +1,12 @@
 ---
-# Written to /etc/motd, /etc/issue and /etc/issue.net
+# Written to /etc/issue and /etc/issue.net, the banners shown before a login
+# completes. Keep this to the warning, because anyone who can reach the host
+# can read it without authenticating.
 exorcism_banner_text: "Authorized users only. All activity may be monitored and reported."
+
+# Written to /etc/motd, shown after a successful login. Defaults to the warning
+# above so an unconfigured host still gets one. Set it separately where a site
+# has its own message of the day. CIS 1.6.1 only asks that it disclose nothing
+# about the operating system, so it must not use the \m, \r, \s or \v escapes
+# or name the distribution and release.
+exorcism_motd_text: "{{ exorcism_banner_text }}"
