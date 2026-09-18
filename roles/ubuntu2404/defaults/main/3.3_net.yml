@@ -2,3 +2,19 @@
 # Hosts that route traffic need forwarding enabled
 exorcism_ipv4_ip_forward: 0
 exorcism_ipv6_forwarding: 0
+
+# Reverse path filtering. CIS asks for 1, strict mode, which drops any packet
+# whose reply would leave by a different interface than it arrived on. A host
+# with one default route is unaffected. A multi-homed host, such as a compute
+# node on separate management and fabric networks, routes asymmetrically and
+# loses that traffic, so it needs 2, loose mode, which only requires the source
+# to be reachable by some route. Ubuntu itself ships 2 in
+# /etc/sysctl.d/10-network-security.conf, and this file sorts after it.
+exorcism_rp_filter: 1
+
+# IPv6 router advertisements. CIS asks for 0 because a host that accepts them
+# takes its address and default route from whatever is on the wire. A host
+# given its address by SLAAC has no other source for either, so setting this to
+# 0 strands it on the next boot. Use 0 only where addresses are static or
+# DHCPv6-assigned.
+exorcism_ipv6_accept_ra: 0

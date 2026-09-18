@@ -77,6 +77,13 @@ argument_specs:
         default: true
         description: Apply section 6.1, which configures journald and log file permissions.
 
+      exorcism_remove_apport:
+        type: bool
+        default: true
+        description:
+          - Satisfy CIS 1.5.5 by purging apport, rather than by setting enabled=0 and masking apport.service.
+          - Set false on desktop and NVIDIA DGX images, where apport-gtk is a dependency of metapackages that the purge would take with it.
+
       exorcism_blacklist_kernel_modules:
         type: list
         elements: str
@@ -94,7 +101,17 @@ argument_specs:
       exorcism_banner_text:
         type: str
         default: Authorized users only. All activity may be monitored and reported.
-        description: Text written to /etc/motd, /etc/issue and /etc/issue.net.
+        description:
+          - Text written to /etc/issue and /etc/issue.net, the banners shown before a login completes.
+          - Readable without authenticating, so it should carry the warning and nothing else.
+
+      exorcism_motd_text:
+        type: str
+        description:
+          - Text written to /etc/motd, shown after a successful login. Defaults to exorcism_banner_text.
+          - Set this where a site has its own message of the day, such as a name or an ASCII logo.
+          - CIS 1.6.1 requires only that it disclose nothing about the operating system.
+          - So it must not use the \m, \r, \s or \v escapes, or name the distribution and release.
 
       exorcism_time_daemon:
         type: str
@@ -128,6 +145,24 @@ argument_specs:
         default: 0
         choices: [0, 1]
         description: Value for net.ipv6.conf.all.forwarding.
+
+      exorcism_rp_filter:
+        type: int
+        default: 1
+        choices: [0, 1, 2]
+        description:
+          - Value for net.ipv4.conf.all.rp_filter and its default counterpart.
+          - CIS asks for 1, strict mode, which drops a packet whose reply would leave by a different interface.
+          - Multi-homed hosts route asymmetrically and need 2, loose mode, which only requires the source to be reachable.
+
+      exorcism_ipv6_accept_ra:
+        type: int
+        default: 0
+        choices: [0, 1, 2]
+        description:
+          - Value for net.ipv6.conf.all.accept_ra and its default counterpart.
+          - A host given its IPv6 address by SLAAC has no other source for its address or default route, so 0 strands it on the next boot.
+          - Leave at 0 only where IPv6 addresses are static or DHCPv6-assigned.
 
       exorcism_firewall_allowed_tcp_ports:
         type: list
