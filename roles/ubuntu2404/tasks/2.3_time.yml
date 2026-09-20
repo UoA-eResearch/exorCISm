@@ -44,7 +44,7 @@
 
 # Files under sources.d must use the .sources suffix and may contain only
 # server, pool and peer directives. Anything else is silently not read.
-- name: 2.3.2.1 Ensure chrony is configured with authorised timeservers
+- name: 2.3.3.1 Ensure chrony is configured
   ansible.builtin.template:
     src: chrony.sources.j2
     dest: /etc/chrony/sources.d/exorcism.sources
@@ -57,7 +57,7 @@
     - exorcism_ntp_servers | length > 0
   tags: 2.3_time
 
-- name: 2.3.3.1 Ensure timesyncd configuration directory exists
+- name: 2.3.2.1 Ensure timesyncd configuration directory exists
   ansible.builtin.file:
     path: /etc/systemd/timesyncd.conf.d
     state: directory
@@ -69,7 +69,7 @@
     - exorcism_ntp_servers | length > 0
   tags: 2.3_time
 
-- name: 2.3.3.1 Ensure systemd-timesyncd is configured with authorised timeservers
+- name: 2.3.2.1 Ensure systemd-timesyncd is configured with authorised timeservers
   ansible.builtin.template:
     src: timesyncd.conf.j2
     dest: /etc/systemd/timesyncd.conf.d/90-exorcism.conf

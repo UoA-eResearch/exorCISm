@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 - 2026-09-21
+
+### Changed
+
+- Renumber every control reference to the CIS Ubuntu 24.04 Benchmark v2.0.0
+- Split the network sysctl template into IPv4 and IPv6 sections
+
+### Fixed
+
+- Correct the chrony and timesyncd control numbers, which were the wrong way round
+- Correct the sshd banner control number, which cited the 22.04 benchmark
+
 ## 0.2.0 - 2026-09-18
 
 ### Added

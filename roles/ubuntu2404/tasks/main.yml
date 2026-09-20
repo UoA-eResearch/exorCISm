@@ -23,7 +23,7 @@
   when: exorcism_section_1_1_kernel_modules_enabled
   tags: "1.1_kernel_modules"
 
-- name: 1.5 Core Dumps
+- name: 1.5 Additional Process Hardening
   ansible.builtin.include_tasks: 1.5_core_dumps.yml
   when: exorcism_section_1_5_core_dumps_enabled
   tags: "1.5_core_dumps"

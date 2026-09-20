@@ -1,5 +1,5 @@
 ---
-- name: 5.1.1 Ensure permissions on /etc/ssh/sshd_config are configured
+- name: 5.1.1 Ensure access to /etc/ssh/sshd_config is configured
   ansible.builtin.file:
     path: /etc/ssh/sshd_config
     owner: root
@@ -15,7 +15,7 @@
   register: exorcism_sshd_config_files
   tags: 5.1_ssh
 
-- name: 5.1.X Ensure permissions on /etc/ssh/sshd_config.d/* are configured
+- name: 5.1.1 Ensure access to /etc/ssh/sshd_config.d/* is configured
   ansible.builtin.file:
     path: "{{ item.path }}"
     owner: root

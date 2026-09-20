@@ -10,7 +10,10 @@
   check_mode: false
   tags: 6.1_logging
 
-- name: 6.1.2.1.1 Ensure systemd-journal-remote is installed
+# v2.0.0 dropped the recommendation that required this package, and keeps only
+# 6.1.1.1.2, which requires the remote service to be unused. The package stays
+# installed because journald-upload below depends on it.
+- name: Ensure systemd-journal-remote is installed
   ansible.builtin.apt:
     name: systemd-journal-remote
     state: present
@@ -18,7 +21,7 @@
   when: exorcism_journal_remote_check.rc != 0
   tags: 6.1_logging
 
-- name: 6.1.2.1.3 Ensure systemd-journal-upload is enabled and active
+- name: 6.1.1.1.2 Ensure systemd-journal-remote service is not in use
   ansible.builtin.systemd_service:
     name: systemd-journal-upload
     state: stopped
@@ -36,7 +39,7 @@
     mode: "0755"
   tags: 6.1_logging
 
-- name: 6.1.X.X Add journald configuration
+- name: 6.1.1.1.5-6.1.1.1.7 Add journald configuration
   ansible.builtin.copy:
     src: 90-journald.conf
     dest: /etc/systemd/journald.conf.d/90-journald.conf
@@ -49,7 +52,7 @@
 
 # Stat first so the label below can name the mode each directory is coming
 # from, the same way the file loop further down does.
-- name: 6.1.4.1 Read the current log directory permissions
+- name: 6.1.3.1 Read the current log directory permissions
   ansible.builtin.stat:
     path: "{{ item }}"
   loop:
@@ -60,7 +63,7 @@
   changed_when: false
   tags: 6.1_logging
 
-- name: 6.1.4.1 Ensure access to all logfiles has been configured (directories)
+- name: 6.1.3.1 Ensure access to all logfiles has been configured (directories)
   ansible.builtin.file:
     path: "{{ item.item }}"
     state: directory
@@ -88,7 +91,7 @@
 # such as boot.log at 0600 and the installer's autoinstall-user-data at 0400,
 # and setting those to 0640 loosens them. The control is a ceiling, not a
 # target, so a file already below it is left alone.
-- name: 6.1.4.1 Find logfiles with permissions wider than 0640
+- name: 6.1.3.1 Find logfiles with permissions wider than 0640
   ansible.builtin.command:
     argv:
       - find
@@ -123,7 +126,7 @@
 #
 # diff is off because the label carries the same information in one line. The
 # mode arrives from find as %m, which drops the leading zero, so pad it back.
-- name: 6.1.4.1 Ensure access to all logfiles has been configured (all files in /var/log)
+- name: 6.1.3.1 Ensure access to all logfiles has been configured (all files in /var/log)
   ansible.builtin.file:
     path: "{{ exorcism_logfile.1 }}"
     mode: "0640"
