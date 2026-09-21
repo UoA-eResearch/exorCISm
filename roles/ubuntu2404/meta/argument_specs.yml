@@ -10,108 +10,11 @@ argument_specs:
       - University of Auckland, Centre for eResearch
     options:
 
+      # 1.1 Filesystem kernel modules
       exorcism_section_1_1_kernel_modules_enabled:
         type: bool
         default: true
         description: Apply section 1.1, which blocks filesystem and hardware kernel modules from loading.
-
-      exorcism_section_1_3_apparmor_enabled:
-        type: bool
-        default: false
-        description:
-          - Apply section 1.3, which installs AppArmor and restricts unprivileged unconfined profiles.
-          - Off by default, because a profile that does not match how a site runs an application blocks it.
-
-      exorcism_section_1_5_core_dumps_enabled:
-        type: bool
-        default: true
-        description: Apply section 1.5, which restricts core dumps and enables address space layout randomisation.
-
-      exorcism_section_1_6_banner_enabled:
-        type: bool
-        default: true
-        description: Apply section 1.6, which writes the login warning banners.
-
-      exorcism_section_1_7_gdm_enabled:
-        type: bool
-        default: true
-        description:
-          - Apply section 1.7, which configures the GDM login screen.
-          - Applies only where GDM is installed, so a headless host is unaffected.
-
-      exorcism_section_2_1_services_enabled:
-        type: bool
-        default: true
-        description: Apply section 2.1, which removes server services a host does not need.
-
-      exorcism_section_2_2_clients_enabled:
-        type: bool
-        default: true
-        description: Apply section 2.2, which removes insecure client packages.
-
-      exorcism_section_2_3_time_enabled:
-        type: bool
-        default: true
-        description: Apply section 2.3, which ensures a single time synchronisation daemon is in use.
-
-      exorcism_section_2_4_cron_enabled:
-        type: bool
-        default: true
-        description: Apply section 2.4, which restricts cron permissions and access.
-
-      exorcism_section_3_1_wireless_enabled:
-        type: bool
-        default: true
-        description: Apply section 3.1, which disables wireless interfaces and bluetooth.
-
-      exorcism_section_3_2_net_modules_enabled:
-        type: bool
-        default: true
-        description: Apply section 3.2, which blacklists uncommon network protocol modules.
-
-      exorcism_section_3_3_net_enabled:
-        type: bool
-        default: true
-        description: Apply section 3.3, which applies network kernel parameters.
-
-      exorcism_section_4_4_firewall_enabled:
-        type: bool
-        default: false
-        description:
-          - Apply section 4.4, which makes the role own the host iptables rulesets.
-          - Off by default because a default-DROP policy can cut a host off if applied without review.
-
-      exorcism_section_5_1_ssh_enabled:
-        type: bool
-        default: true
-        description: Apply section 5.1, which configures the SSH daemon.
-
-      exorcism_section_5_2_sudo_enabled:
-        type: bool
-        default: true
-        description: Apply section 5.2, which configures sudo logging and restricts su.
-
-      exorcism_section_5_3_password_enabled:
-        type: bool
-        default: true
-        description: Apply section 5.3, which configures PAM password quality, history and lockout.
-
-      exorcism_section_5_4_password_enabled:
-        type: bool
-        default: true
-        description: Apply section 5.4, which configures password ageing, umask and shell timeout.
-
-      exorcism_section_6_1_logging_enabled:
-        type: bool
-        default: true
-        description: Apply section 6.1, which configures journald and log file permissions.
-
-      exorcism_remove_apport:
-        type: bool
-        default: true
-        description:
-          - Satisfy CIS 1.5.5 by purging apport, rather than by setting enabled=0 and masking apport.service.
-          - Set false on desktop and NVIDIA DGX images, where apport-gtk is a dependency of metapackages that the purge would take with it.
 
       exorcism_blacklist_kernel_modules:
         type: list
@@ -127,19 +30,38 @@ argument_specs:
           - Modules to leave loadable, subtracted from the blacklist.
           - Container hosts need overlay. Hosts using snaps need squashfs.
 
-      exorcism_blacklist_network_modules:
-        type: list
-        elements: str
-        default: [atm, can, dccp, rds, sctp, tipc]
-        description: Network protocol modules prevented from loading. Remove entries using the exclude list rather than by rewriting this.
-
-      exorcism_blacklist_network_modules_exclude:
-        type: list
-        elements: str
-        default: []
+      # 1.3 Mandatory access control
+      exorcism_section_1_3_apparmor_enabled:
+        type: bool
+        default: false
         description:
-          - Modules to leave loadable, subtracted from the network blacklist.
-          - Telecoms and automotive workloads may need atm or can.
+          - Apply section 1.3, which installs AppArmor and restricts unprivileged unconfined profiles.
+          - Off by default, because a profile that does not match how a site runs an application blocks it.
+
+      exorcism_apparmor_restrict_unprivileged_unconfined:
+        type: int
+        default: 1
+        choices: [0, 1]
+        description: Value for kernel.apparmor_restrict_unprivileged_unconfined. CIS asks for 1.
+
+      # 1.5 Additional process hardening
+      exorcism_section_1_5_core_dumps_enabled:
+        type: bool
+        default: true
+        description: Apply section 1.5, which restricts core dumps and enables address space layout randomisation.
+
+      exorcism_remove_apport:
+        type: bool
+        default: true
+        description:
+          - Satisfy CIS 1.5.5 by purging apport, rather than by setting enabled=0 and masking apport.service.
+          - Set false on desktop and NVIDIA DGX images, where apport-gtk is a dependency of metapackages that the purge would take with it.
+
+      # 1.6 Command line warning banners
+      exorcism_section_1_6_banner_enabled:
+        type: bool
+        default: true
+        description: Apply section 1.6, which writes the login warning banners.
 
       exorcism_banner_text:
         type: str
@@ -156,6 +78,66 @@ argument_specs:
           - CIS 1.6.1 requires only that it disclose nothing about the operating system.
           - So it must not use the \m, \r, \s or \v escapes, or name the distribution and release.
 
+      exorcism_restrict_motd_files:
+        type: bool
+        default: true
+        description:
+          - Set every MOTD file to 0644 owned by root, which CIS 1.6.6 requires.
+          - This stops the dynamic MOTD generated by the scripts in /etc/update-motd.d. The static /etc/motd is unaffected.
+
+      # 1.7 GDM login screen
+      exorcism_section_1_7_gdm_enabled:
+        type: bool
+        default: true
+        description:
+          - Apply section 1.7, which configures the GDM login screen.
+          - Applies only where GDM is installed, so a headless host is unaffected.
+
+      exorcism_gdm_idle_delay:
+        type: int
+        default: 900
+        description: Seconds of inactivity before the GDM screen blanks. CIS asks for more than 0 and no more than 900.
+
+      exorcism_gdm_lock_delay:
+        type: int
+        default: 5
+        description: Seconds after blanking before the screen locks. CIS asks for no more than 5.
+
+      # 2.1 Server services
+      exorcism_section_2_1_services_enabled:
+        type: bool
+        default: true
+        description: Apply section 2.1, which removes server services a host does not need.
+
+      exorcism_remove_avahi:
+        type: bool
+        default: true
+        description: Purge avahi-daemon, which advertises services on the local network by mDNS.
+
+      exorcism_remove_web_server:
+        type: bool
+        default: true
+        description:
+          - Purge apache2 and nginx.
+          - Set false on any host that serves HTTP, including one where a web server only terminates TLS for an application.
+
+      exorcism_remove_print_server:
+        type: bool
+        default: true
+        description: Purge cups. Set false on a host that prints.
+
+      # 2.2 Client services
+      exorcism_section_2_2_clients_enabled:
+        type: bool
+        default: true
+        description: Apply section 2.2, which removes insecure client packages.
+
+      # 2.3 Time synchronisation
+      exorcism_section_2_3_time_enabled:
+        type: bool
+        default: true
+        description: Apply section 2.3, which ensures a single time synchronisation daemon is in use.
+
       exorcism_time_daemon:
         type: str
         default: auto
@@ -171,11 +153,63 @@ argument_specs:
         default: []
         description: NTP sources. Empty leaves the daemon's own configuration alone.
 
+      # 2.4 Job schedulers
+      exorcism_section_2_4_cron_enabled:
+        type: bool
+        default: true
+        description: Apply section 2.4, which restricts cron permissions and access.
+
       exorcism_cron_allow_extra_users:
         type: list
         elements: str
         default: []
         description: Users permitted to use crontab in addition to root.
+
+      # 3.1 Wireless and bluetooth
+      exorcism_section_3_1_wireless_enabled:
+        type: bool
+        default: true
+        description: Apply section 3.1, which disables wireless interfaces and bluetooth.
+
+      exorcism_disable_wireless:
+        type: bool
+        default: true
+        description:
+          - Make every wireless driver the running kernel ships unloadable.
+          - Set false on a host that uses wireless networking.
+
+      exorcism_disable_bluetooth:
+        type: bool
+        default: true
+        description:
+          - Stop and mask bluetooth.service, rather than purging bluez, which desktop and audio packages depend on.
+          - Set false on a host with bluetooth peripherals, such as a keyboard or mouse.
+
+      # 3.2 Network kernel modules
+      exorcism_section_3_2_net_modules_enabled:
+        type: bool
+        default: true
+        description: Apply section 3.2, which blacklists uncommon network protocol modules.
+
+      exorcism_blacklist_network_modules:
+        type: list
+        elements: str
+        default: [atm, can, dccp, rds, sctp, tipc]
+        description: Network protocol modules prevented from loading. Remove entries using the exclude list rather than by rewriting this.
+
+      exorcism_blacklist_network_modules_exclude:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Modules to leave loadable, subtracted from the network blacklist.
+          - Telecoms and automotive workloads may need atm or can.
+
+      # 3.3 Network kernel parameters
+      exorcism_section_3_3_net_enabled:
+        type: bool
+        default: true
+        description: Apply section 3.3, which applies network kernel parameters.
 
       exorcism_ipv4_ip_forward:
         type: int
@@ -207,30 +241,11 @@ argument_specs:
           - A host given its IPv6 address by SLAAC has no other source for its address or default route, so 0 strands it on the next boot.
           - Leave at 0 only where IPv6 addresses are static or DHCPv6-assigned.
 
-      exorcism_firewall_allowed_tcp_ports:
-        type: list
-        elements: int
-        default: [22]
-        description: Inbound TCP ports accepted. Everything else is dropped by the default policy.
-
-      exorcism_firewall_allow_all_outbound:
+      # 5.1 SSH server
+      exorcism_section_5_1_ssh_enabled:
         type: bool
         default: true
-        description:
-          - Whether the host may open new outbound connections, implementing CIS 4.4.2.3.
-          - Set false for egress filtering, where every permitted destination must be named in the extra rules.
-
-      exorcism_firewall_extra_rules_v4:
-        type: list
-        elements: str
-        default: []
-        description: Extra IPv4 rules appended to the filter table, in iptables-save syntax.
-
-      exorcism_firewall_extra_rules_v6:
-        type: list
-        elements: str
-        default: []
-        description: Extra IPv6 rules appended to the filter table, in ip6tables-save syntax.
+        description: Apply section 5.1, which configures the SSH daemon.
 
       exorcism_ssh_allow_users:
         type: list
@@ -240,10 +255,33 @@ argument_specs:
           - Accounts permitted to log in over SSH.
           - An empty list omits the AllowUsers directive, which permits all users. Setting it replaces the list.
 
+      exorcism_ssh_allow_groups:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Groups permitted to log in over SSH, written as AllowGroups.
+          - CIS 5.1.4 accepts AllowUsers or AllowGroups. A group is the only way to express every directory user without naming each one.
+
       exorcism_ssh_disable_forwarding:
         type: bool
         default: true
         description: Applies sshd DisableForwarding. Bastion hosts need this set to false.
+
+      exorcism_ssh_omit_directives:
+        type: list
+        elements: str
+        default: []
+        description:
+          - sshd keywords the role will not write, for a host where another tool owns them.
+          - sshd takes the first value it obtains for a keyword and reads sshd_config.d in lexical order, so a file sorting before 90-ssh.conf wins.
+          - Naming a keyword here stops the role claiming a setting it cannot deliver.
+
+      # 5.2 Privilege escalation
+      exorcism_section_5_2_sudo_enabled:
+        type: bool
+        default: true
+        description: Apply section 5.2, which configures sudo logging and restricts su.
 
       exorcism_su_group:
         type: str
@@ -251,6 +289,18 @@ argument_specs:
         description:
           - Group whose members may use su, enforced by pam_wheel.
           - CIS expects this group to be empty, so that sudo is used instead of su.
+
+      # 5.3 Pluggable authentication modules
+      exorcism_section_5_3_password_enabled:
+        type: bool
+        default: true
+        description: Apply section 5.3, which configures PAM password quality, history and lockout.
+
+      # 5.4 User accounts and environment
+      exorcism_section_5_4_password_enabled:
+        type: bool
+        default: true
+        description: Apply section 5.4, which configures password ageing, umask and shell timeout.
 
       exorcism_inactive_password_lock_days:
         type: int
@@ -270,6 +320,13 @@ argument_specs:
         default: []
         description: Service accounts with UID 1000 or above exempt from password ageing and inactivity locking.
 
+      # 6.1 System logging
+      exorcism_section_6_1_logging_enabled:
+        type: bool
+        default: true
+        description: Apply section 6.1, which configures journald and log file permissions.
+
+      # 6.3 Filesystem integrity
       exorcism_section_6_3_integrity_enabled:
         type: bool
         default: false
@@ -277,63 +334,9 @@ argument_specs:
           - Apply section 6.3, which installs AIDE and enables its daily check.
           - Off by default, because building the initial database takes minutes to hours.
 
-      exorcism_apparmor_restrict_unprivileged_unconfined:
-        type: int
-        default: 1
-        choices: [0, 1]
-        description: Value for kernel.apparmor_restrict_unprivileged_unconfined. CIS asks for 1.
-
-      exorcism_gdm_idle_delay:
-        type: int
-        default: 900
-        description: Seconds of inactivity before the GDM screen blanks. CIS asks for more than 0 and no more than 900.
-
-      exorcism_gdm_lock_delay:
-        type: int
-        default: 5
-        description: Seconds after blanking before the screen locks. CIS asks for no more than 5.
-
-      exorcism_disable_wireless:
-        type: bool
-        default: true
-        description:
-          - Make every wireless driver the running kernel ships unloadable.
-          - Set false on a host that uses wireless networking.
-
-      exorcism_disable_bluetooth:
-        type: bool
-        default: true
-        description:
-          - Stop and mask bluetooth.service, rather than purging bluez, which desktop and audio packages depend on.
-          - Set false on a host with bluetooth peripherals, such as a keyboard or mouse.
-
       exorcism_aide_initialise:
         type: bool
         default: true
         description:
           - Build the initial AIDE database when none exists.
           - Only used when section 6.3 is enabled.
-
-      exorcism_remove_avahi:
-        type: bool
-        default: true
-        description: Purge avahi-daemon, which advertises services on the local network by mDNS.
-
-      exorcism_remove_web_server:
-        type: bool
-        default: true
-        description:
-          - Purge apache2 and nginx.
-          - Set false on any host that serves HTTP, including one where a web server only terminates TLS for an application.
-
-      exorcism_remove_print_server:
-        type: bool
-        default: true
-        description: Purge cups. Set false on a host that prints.
-
-      exorcism_restrict_motd_files:
-        type: bool
-        default: true
-        description:
-          - Set every MOTD file to 0644 owned by root, which CIS 1.6.6 requires.
-          - This stops the dynamic MOTD generated by the scripts in /etc/update-motd.d. The static /etc/motd is unaffected.

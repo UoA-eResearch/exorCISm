@@ -33,10 +33,6 @@ exorcism_section_3_2_net_modules_enabled: true
 
 exorcism_section_3_3_net_enabled: true
 
-# Off by default: the shipped rulesets set a default-DROP policy and would
-# cut a host off if applied without review
-exorcism_section_4_4_firewall_enabled: false
-
 exorcism_section_5_1_ssh_enabled: true
 
 exorcism_section_5_2_sudo_enabled: true

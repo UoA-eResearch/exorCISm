@@ -1,33 +1,17 @@
 ---
-- name: Check if systemd-journal-remote is installed
-  ansible.builtin.command:
-    cmd: dpkg -l systemd-journal-remote
-  register: exorcism_journal_remote_check
-  failed_when: false
-  changed_when: false
-  # Runs during a dry run as well: skipped, it registers nothing and the tasks
-  # that read it silently skip instead of reporting what they would change.
-  check_mode: false
-  tags: 6.1_logging
-
-# v2.0.0 dropped the recommendation that required this package, and keeps only
-# 6.1.1.1.2, which requires the remote service to be unused. The package stays
-# installed because journald-upload below depends on it.
-- name: Ensure systemd-journal-remote is installed
-  ansible.builtin.apt:
-    name: systemd-journal-remote
-    state: present
-    update_cache: true
-  when: exorcism_journal_remote_check.rc != 0
-  tags: 6.1_logging
-
+# Masked rather than removed, because a host with no such unit has nothing to
+# stop and a host that has one must not start it again at boot. failed_when is
+# off so the absent case, which is the common one, is not an error.
 - name: 6.1.1.1.2 Ensure systemd-journal-remote service is not in use
   ansible.builtin.systemd_service:
-    name: systemd-journal-upload
+    name: "{{ item }}"
     state: stopped
     enabled: false
+    masked: true
+  loop:
+    - systemd-journal-remote.socket
+    - systemd-journal-remote.service
   failed_when: false
-  changed_when: false
   tags: 6.1_logging
 
 - name: Create journald configuration directory

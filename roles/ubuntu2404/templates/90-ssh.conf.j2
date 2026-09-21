@@ -1,53 +1,44 @@
+{#- Each entry is (control, keyword, value). Rendering from a list rather than
+    writing the directives out longhand is what lets a host drop one it does
+    not own, through exorcism_ssh_omit_directives, without the file having to
+    know which tool owns it. -#}
+{%- set directives = [
+  ('', 'PubkeyAuthentication', 'yes'),
+  ('', 'PasswordAuthentication', 'no'),
+  ('', 'X11Forwarding', 'no'),
+  ('5.1.6 Ensure sshd Ciphers are configured', 'Ciphers', 'aes256-ctr,aes192-ctr,aes128-ctr'),
+  ('5.1.7 Ensure sshd ClientAliveInterval and ClientAliveCountMax are configured', 'ClientAliveInterval', '300'),
+  ('5.1.7 Ensure sshd ClientAliveInterval and ClientAliveCountMax are configured', 'ClientAliveCountMax', '2'),
+  ('5.1.8 Ensure sshd DisableForwarding is enabled', 'DisableForwarding', (exorcism_ssh_disable_forwarding | bool) | ternary('yes', 'no')),
+  ('5.1.9 Ensure sshd GSSAPIAuthentication is disabled', 'GSSAPIAuthentication', 'no'),
+  ('5.1.10 Ensure sshd HostbasedAuthentication is disabled', 'HostbasedAuthentication', 'no'),
+  ('5.1.11 Ensure sshd IgnoreRhosts is enabled', 'IgnoreRhosts', 'yes'),
+  ('5.1.12 Ensure sshd KexAlgorithms is configured', 'KexAlgorithms', 'ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256'),
+  ('5.1.13 Ensure sshd LoginGraceTime is configured', 'LoginGraceTime', '60s'),
+  ('5.1.14 Ensure sshd LogLevel is configured', 'LogLevel', 'INFO'),
+  ('5.1.15 Ensure sshd MACs are configured.\n# hmac-sha1 is permitted: the benchmark\'s weak list names hmac-sha1-96,\n# not hmac-sha1, and its notes count HMAC-SHA1 among the FIPS 140 approved\n# MACs. Removing it is a site decision, not a CIS requirement', 'MACs', 'hmac-sha1,hmac-sha2-256,hmac-sha2-512'),
+  ('5.1.16 Ensure sshd MaxAuthTries is configured', 'MaxAuthTries', '3'),
+  ('5.1.18 Ensure sshd MaxSessions is configured', 'MaxSessions', '10'),
+  ('5.1.17 Ensure sshd MaxStartups is configured', 'MaxStartups', '10:30:60'),
+  ('5.1.19 Ensure sshd PermitEmptyPasswords is disabled', 'PermitEmptyPasswords', 'no'),
+  ('5.1.20 Ensure sshd PermitRootLogin is disabled', 'PermitRootLogin', 'no'),
+  ('5.1.21 Ensure sshd PermitUserEnvironment is disabled', 'PermitUserEnvironment', 'no'),
+  ('5.1.22 Ensure sshd UsePAM is enabled', 'UsePAM', 'yes'),
+  ('1.6.5 Ensure sshd warning Banner is configured', 'Banner', '/etc/issue.net'),
+] -%}
 # Custom SSH configurations
-PubkeyAuthentication yes
-PasswordAuthentication no
-X11Forwarding no
-
-# CIS Benchmark Recommendations
-# 5.1.4 Ensure sshd access is configured
 {# An empty list omits the directive entirely, which permits all users.
-   Emitting the directive with no arguments would instead deny everyone. #}
-{% if exorcism_ssh_allow_users | length > 0 %}
-AllowUsers {{ exorcism_ssh_allow_users | join(' ') }}
+   Emitting it with no arguments would instead deny everyone. CIS 5.1.4 is
+   satisfied by any one of AllowUsers, AllowGroups, DenyUsers or DenyGroups. #}
+{% for keyword, members in [('AllowUsers', exorcism_ssh_allow_users), ('AllowGroups', exorcism_ssh_allow_groups)] %}
+{% if members | length > 0 and keyword not in exorcism_ssh_omit_directives %}
+# 5.1.4 Ensure sshd access is configured
+{{ keyword }} {{ members | join(' ') }}
 {% endif %}
-# 5.1.6 Ensure sshd Ciphers are configured
-Ciphers aes256-ctr,aes192-ctr,aes128-ctr
-# 5.1.7 Ensure sshd ClientAliveInterval and ClientAliveCountMax are configured
-ClientAliveInterval 300
-ClientAliveCountMax 2
-# 5.1.8 Ensure sshd DisableForwarding is enabled
-DisableForwarding {{ (exorcism_ssh_disable_forwarding | bool) | ternary('yes','no') }}
-# 5.1.9 Ensure sshd GSSAPIAuthentication is disabled
-GSSAPIAuthentication no
-# 5.1.10 Ensure sshd HostbasedAuthentication is disabled
-HostbasedAuthentication no
-# 5.1.11 Ensure sshd IgnoreRhosts is enabled
-IgnoreRhosts yes
-# 5.1.12 Ensure sshd KexAlgorithms is configured
-KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256
-# 5.1.13 Ensure sshd LoginGraceTime is configured
-LoginGraceTime 60s
-# 5.1.14 Ensure sshd LogLevel is configured
-LogLevel INFO
-# 5.1.15 Ensure sshd MACs are configured
-# hmac-sha1 is permitted: the benchmark's weak list names hmac-sha1-96,
-# not hmac-sha1, and its notes count HMAC-SHA1 among the FIPS 140 approved
-# MACs. Removing it is a site decision, not a CIS requirement.
-MACs hmac-sha1,hmac-sha2-256,hmac-sha2-512
-# 5.1.16 Ensure sshd MaxAuthTries is configured
-MaxAuthTries 3
-# 5.1.18 Ensure sshd MaxSessions is configured
-MaxSessions 10
-# 5.1.17 Ensure sshd MaxStartups is configured
-MaxStartups 10:30:60
-# 5.1.19 Ensure sshd PermitEmptyPasswords is disabled
-PermitEmptyPasswords no
-# 5.1.20 Ensure sshd PermitRootLogin is disabled
-PermitRootLogin no
-# 5.1.21 Ensure sshd PermitUserEnvironment is disabled
-PermitUserEnvironment no
-# 5.1.22 Ensure sshd UsePAM is enabled
-UsePAM yes
-
-# 1.6.5 Ensure sshd warning Banner is configured
-Banner /etc/issue.net
+{% endfor %}
+{% for control, keyword, value in directives if keyword not in exorcism_ssh_omit_directives %}
+{% if control %}
+# {{ control }}
+{% endif %}
+{{ keyword }} {{ value }}
+{% endfor %}

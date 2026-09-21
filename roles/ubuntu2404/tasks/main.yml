@@ -13,9 +13,6 @@
     - exorcism_blacklist_network_modules_exclude
     - exorcism_ntp_servers
     - exorcism_cron_allow_extra_users
-    - exorcism_firewall_allowed_tcp_ports
-    - exorcism_firewall_extra_rules_v4
-    - exorcism_firewall_extra_rules_v6
     - exorcism_ssh_allow_users
     - exorcism_password_excluded_users
   tags: always
@@ -79,11 +76,6 @@
   ansible.builtin.include_tasks: 3.3_net.yml
   when: exorcism_section_3_3_net_enabled
   tags: "3.3_net"
-
-- name: 4.4 Firewall Configuration
-  ansible.builtin.include_tasks: 4.4_firewall.yml
-  when: exorcism_section_4_4_firewall_enabled
-  tags: "4.4_firewall"
 
 - name: 5.1 SSH Configuration
   ansible.builtin.include_tasks: 5.1_ssh.yml
