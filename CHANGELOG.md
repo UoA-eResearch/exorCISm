@@ -2,42 +2,48 @@
 
 ## 0.3.0 - 2026-09-21
 
+### Added
+
+- Configure the process hardening kernel parameters and systemd-coredump
+- Disable wireless interfaces, bluetooth and the uncommon network protocol modules
+- Remove the avahi, web and print server packages, with a variable for each
+- Configure the GDM login screen where GDM is installed
+- Add AppArmor and AIDE sections, off by default
+- Cover the forwarding parameters, cron.yearly, the ftp client and the message of the day files
+- Grant SSH access by group, let a host omit sshd keywords another tool owns
+
 ### Changed
 
 - Renumber every control reference to the CIS Ubuntu 24.04 Benchmark v2.0.0
-- Split the network sysctl template into IPv4 and IPv6 sections
+- Mask the journal remote socket and service instead of installing the package
 
 ### Fixed
 
-- Correct the chrony and timesyncd control numbers, which were the wrong way round
-- Correct the sshd banner control number, which cited the 22.04 benchmark
+- Correct the chrony, timesyncd and sshd banner control numbers
+- Exclude local reference files and scan exports from collection builds
 
 ## 0.2.0 - 2026-09-18
 
 ### Added
 
-- Add `exorcism_rp_filter` for multi-homed hosts that need loose reverse path filtering
-- Add `exorcism_ipv6_accept_ra` for hosts addressed by SLAAC
-- Add `exorcism_remove_apport` to satisfy 1.5.5 without purging apport
-- Add `exorcism_motd_text`, so a site keeps its own `/etc/motd` while `/etc/issue` keeps the warning
+- Add variables for reverse path filtering, router advertisements, apport and the message of the day
 
 ### Changed
 
-- Report 2.4.1.2 to 2.4.1.7 and 6.1.4.1 permission changes as one line per path, with the old and new mode
-- Leave `lastlog`, `btmp` and `wtmp` at their shipped modes
+- Report cron and log file mode changes as one line per path
+- Leave the lastlog, btmp and wtmp files at their shipped modes
 
 ### Fixed
 
-- Stop 6.1.4.1 widening log files already tighter than 0640
-- Show the 6.1.4.1 log file changes in check mode, which a shell task had hidden
-- Force the collection install in the `test` make target
-- Exclude `local/` from collection builds, which were packaging personal inventories
+- Stop widening log files already tighter than 0640, show the changes in check mode
+- Force the collection install in the test make target
+- Exclude local inventories from collection builds
 
 ## 0.1.0 - 2026-09-11
 
 ### Added
 
 - Add a CIS Benchmark hardening role for Ubuntu 24.04 LTS
-- Add per-section tags so controls can be applied or skipped individually
-- Add documented argument specs for every variable, with defaults and permitted values
-- Add a worked example playbook covering the variables most hosts need
+- Add per-section tags to apply or skip controls individually
+- Document every variable with its default and permitted values
+- Add a worked example playbook

@@ -31,12 +31,10 @@ dependencies: {}
 
 build_ignore:
   - .ansible
-  # Personal inventories. Kept out of git too, but build_ignore is what stops
-  # a release shipping a site's hostnames and connection details.
-  - local
   - .github
   - .venv
   - dist
+  - local
   - tests
   - .ansible-lint
   - .gitignore
