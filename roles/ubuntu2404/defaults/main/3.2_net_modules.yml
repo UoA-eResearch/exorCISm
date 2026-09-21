@@ -1,0 +1,16 @@
+---
+# Uncommon network protocol modules prevented from loading, the same way the
+# filesystem modules in 1.1.1 are. None of these carry ordinary traffic: atm
+# and can serve telephony and vehicle bus hardware, and dccp, rds, sctp and
+# tipc are niche transports. A host that genuinely needs one, such as a
+# telecoms or automotive workload, names it in the exclude list below.
+exorcism_blacklist_network_modules:
+  - atm
+  - can
+  - dccp
+  - rds
+  - sctp
+  - tipc
+
+# Modules to leave loadable, removed from the list above
+exorcism_blacklist_network_modules_exclude: []

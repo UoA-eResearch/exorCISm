@@ -15,6 +15,7 @@ exorcism_blacklist_kernel_modules:
   - squashfs
   - udf
   - usb-storage
+  - firewire-core
 
 # Modules to leave loadable, removed from the list above. Container hosts need
 # overlay, and hosts that use snaps need squashfs.

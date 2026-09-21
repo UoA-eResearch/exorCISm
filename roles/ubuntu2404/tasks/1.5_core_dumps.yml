@@ -1,12 +1,22 @@
 ---
-- name: 1.5.4, 1.5.9 Ensure fs.suid_dumpable and kernel.randomize_va_space are configured
+- name: 1.5.1-1.5.9 Ensure process hardening kernel parameters are configured
   ansible.builtin.copy:
-    src: 90-coredump.conf
-    dest: /etc/sysctl.d/90-coredump.conf
+    src: 90-process-hardening.conf
+    dest: /etc/sysctl.d/90-process-hardening.conf
     owner: root
     group: root
     mode: "0644"
     force: true
+  notify: Reload sysctl
+  tags: 1.5_core_dumps
+
+# Earlier releases wrote these settings to 90-coredump.conf. Both files load,
+# so a host upgraded in place would keep applying the old one after a setting
+# is changed or dropped here.
+- name: Remove the superseded coredump sysctl file
+  ansible.builtin.file:
+    path: /etc/sysctl.d/90-coredump.conf
+    state: absent
   notify: Reload sysctl
   tags: 1.5_core_dumps
 
@@ -20,10 +30,30 @@
     force: true
   tags: 1.5_core_dumps
 
-- name: 1.5.10, 1.5.11 Ensure systemd-coredump is installed
+- name: Ensure systemd-coredump is installed
   ansible.builtin.apt:
     name: systemd-coredump
     state: present
+  tags: 1.5_core_dumps
+
+- name: Create the systemd-coredump configuration directory
+  ansible.builtin.file:
+    path: /etc/systemd/coredump.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: 1.5_core_dumps
+
+- name: 1.5.10, 1.5.11 Ensure systemd-coredump ProcessSizeMax and Storage are configured
+  ansible.builtin.copy:
+    src: 60-coredump.conf
+    dest: /etc/systemd/coredump.conf.d/60-coredump.conf
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  notify: Reload systemd
   tags: 1.5_core_dumps
 
 # CIS accepts either removing apport or leaving it installed with reporting

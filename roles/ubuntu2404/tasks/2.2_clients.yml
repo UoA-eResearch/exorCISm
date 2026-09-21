@@ -10,3 +10,9 @@
     name: ldap-utils
     state: absent
   tags: 2.2_clients
+
+- name: 2.2.6 Ensure ftp client is not installed
+  ansible.builtin.package:
+    name: ftp
+    state: absent
+  tags: 2.2_clients

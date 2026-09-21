@@ -18,6 +18,8 @@ exorcism_section_2_3_time_enabled: true
 
 exorcism_section_2_4_cron_enabled: true
 
+exorcism_section_3_2_net_modules_enabled: true
+
 exorcism_section_3_3_net_enabled: true
 
 # Off by default: the shipped rulesets set a default-DROP policy and would

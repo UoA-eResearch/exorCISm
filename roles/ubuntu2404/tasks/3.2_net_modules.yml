@@ -1,0 +1,15 @@
+---
+# A separate file from the filesystem modules in 1.1.1, so that a host needing
+# one of these transports can skip this section without also un-blacklisting
+# the filesystem modules. Modules already loaded stay loaded until reboot;
+# unloading a live module is more likely to break a running service than the
+# module is to be exploited before the next boot.
+- name: 3.2.1-3.2.6 Ensure uncommon network protocol modules are not available
+  ansible.builtin.template:
+    src: 91-net-modules.conf.j2
+    dest: /etc/modprobe.d/91-net-modules.conf
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  tags: 3.2_net_modules

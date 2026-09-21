@@ -40,6 +40,11 @@ argument_specs:
         default: true
         description: Apply section 2.4, which restricts cron permissions and access.
 
+      exorcism_section_3_2_net_modules_enabled:
+        type: bool
+        default: true
+        description: Apply section 3.2, which blacklists uncommon network protocol modules.
+
       exorcism_section_3_3_net_enabled:
         type: bool
         default: true
@@ -87,7 +92,7 @@ argument_specs:
       exorcism_blacklist_kernel_modules:
         type: list
         elements: str
-        default: [cramfs, freevxfs, hfs, hfsplus, jffs2, overlay, squashfs, udf, usb-storage]
+        default: [cramfs, freevxfs, hfs, hfsplus, jffs2, overlay, squashfs, udf, usb-storage, firewire-core]
         description: Kernel modules prevented from loading. Remove entries using the exclude list rather than by rewriting this.
 
       exorcism_blacklist_kernel_modules_exclude:
@@ -97,6 +102,20 @@ argument_specs:
         description:
           - Modules to leave loadable, subtracted from the blacklist.
           - Container hosts need overlay. Hosts using snaps need squashfs.
+
+      exorcism_blacklist_network_modules:
+        type: list
+        elements: str
+        default: [atm, can, dccp, rds, sctp, tipc]
+        description: Network protocol modules prevented from loading. Remove entries using the exclude list rather than by rewriting this.
+
+      exorcism_blacklist_network_modules_exclude:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Modules to leave loadable, subtracted from the network blacklist.
+          - Telecoms and automotive workloads may need atm or can.
 
       exorcism_banner_text:
         type: str
