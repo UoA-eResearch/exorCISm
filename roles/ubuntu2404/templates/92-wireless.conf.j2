@@ -1,0 +1,4 @@
+{% for module in exorcism_wireless_modules | sort %}
+install {{ module }} /bin/false
+blacklist {{ module }}
+{% endfor %}

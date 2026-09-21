@@ -1,0 +1,23 @@
+[org/gnome/login-screen]
+# 1.7.1 Ensure GDM login banner is configured
+banner-message-enable=true
+banner-message-text='{{ exorcism_banner_text }}'
+
+# 1.7.2 Ensure GDM disable-user-list is configured
+disable-user-list=true
+
+[org/gnome/desktop/session]
+# 1.7.3 Ensure GDM screen lock is configured
+idle-delay=uint32 {{ exorcism_gdm_idle_delay }}
+
+[org/gnome/desktop/screensaver]
+# 1.7.3 Ensure GDM screen lock is configured
+lock-delay=uint32 {{ exorcism_gdm_lock_delay }}
+
+[org/gnome/desktop/media-handling]
+# 1.7.4 Ensure GDM automount is configured
+automount=false
+automount-open=false
+
+# 1.7.5 Ensure GDM autorun-never is configured
+autorun-never=true

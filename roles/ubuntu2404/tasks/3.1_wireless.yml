@@ -1,0 +1,55 @@
+---
+# CIS asks for every wireless driver the running kernel ships to be made
+# unloadable, so the list is discovered rather than hard coded: it differs
+# between kernel versions and between architectures.
+# Stat first. A kernel built without wireless drivers has no such directory,
+# and handing find a missing path makes it warn on every run of an ordinary
+# headless host, where this section is on but has nothing to do.
+- name: 3.1.2 Check whether the running kernel ships wireless drivers
+  ansible.builtin.stat:
+    path: "/lib/modules/{{ ansible_facts.kernel }}/kernel/drivers/net/wireless"
+  register: exorcism_wireless_driver_dir
+  when: exorcism_disable_wireless
+  tags: 3.1_wireless
+
+- name: 3.1.2 Find the wireless drivers shipped by the running kernel
+  ansible.builtin.find:
+    paths: "/lib/modules/{{ ansible_facts.kernel }}/kernel/drivers/net/wireless"
+    patterns: "*.ko*"
+    recurse: true
+    file_type: file
+  register: exorcism_wireless_driver_files
+  when:
+    - exorcism_disable_wireless
+    - exorcism_wireless_driver_dir.stat.isdir | default(false)
+  tags: 3.1_wireless
+
+- name: 3.1.2 Ensure wireless interfaces are not available
+  ansible.builtin.template:
+    src: 92-wireless.conf.j2
+    dest: /etc/modprobe.d/92-wireless.conf
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  vars:
+    exorcism_wireless_modules: >-
+      {{ exorcism_wireless_driver_files.files
+         | default([]) | map(attribute='path') | map('basename')
+         | map('regex_replace', '\.ko.*$', '') | list }}
+  when:
+    - exorcism_disable_wireless
+    - exorcism_wireless_driver_files.files | default([]) | length > 0
+  tags: 3.1_wireless
+
+# Masked rather than purged. CIS accepts either, and removing bluez takes the
+# desktop and audio packages that depend on it with it.
+- name: 3.1.3 Ensure bluetooth services are not in use
+  ansible.builtin.systemd_service:
+    name: bluetooth.service
+    state: stopped
+    enabled: false
+    masked: true
+  failed_when: false
+  when: exorcism_disable_bluetooth
+  tags: 3.1_wireless

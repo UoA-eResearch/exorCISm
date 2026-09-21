@@ -38,3 +38,8 @@
   ansible.builtin.command:
     cmd: pam-auth-update --enable unix
   changed_when: true
+
+- name: Update dconf
+  ansible.builtin.command:
+    cmd: dconf update
+  changed_when: true

@@ -1,0 +1,10 @@
+---
+# 3.1.2. Blacklists every wireless driver the running kernel ships, which is
+# how CIS asks for it. Set false on a host that uses wireless networking.
+exorcism_disable_wireless: true
+
+# 3.1.3. Stops and masks bluetooth.service. Masking rather than purging bluez,
+# because the package is a dependency of desktop and audio stacks, so purging
+# it takes them too. Set false on a host with bluetooth peripherals, such as a
+# workstation with a bluetooth keyboard or mouse.
+exorcism_disable_bluetooth: true

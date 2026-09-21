@@ -1,0 +1,43 @@
+---
+# Every control in 1.7 configures GDM, so a host without it has nothing to
+# apply. CIS treats the section as satisfied where GDM is absent, which is why
+# this section is on by default without affecting a headless host.
+- name: Check whether GDM is installed
+  ansible.builtin.stat:
+    path: /usr/sbin/gdm3
+  register: exorcism_gdm_binary
+  tags: 1.7_gdm
+
+- name: 1.7.1-1.7.5 Configure GDM
+  when: exorcism_gdm_binary.stat.exists
+  tags: 1.7_gdm
+  block:
+    - name: Ensure the dconf user profile reads the local database
+      ansible.builtin.copy:
+        content: |
+          user-db:user
+          system-db:local
+        dest: /etc/dconf/profile/user
+        owner: root
+        group: root
+        mode: "0644"
+        force: true
+      notify: Update dconf
+
+    - name: Ensure the local dconf database directory exists
+      ansible.builtin.file:
+        path: /etc/dconf/db/local.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: 1.7.1-1.7.5 Ensure the GDM banner, user list, screen lock and media handling are configured
+      ansible.builtin.template:
+        src: dconf-exorcism.j2
+        dest: /etc/dconf/db/local.d/00-exorcism
+        owner: root
+        group: root
+        mode: "0644"
+        force: true
+      notify: Update dconf

@@ -1,0 +1,5 @@
+---
+# 6.3.1. Building the initial AIDE database walks every file it is configured
+# to watch, so the first run is slow and the task skips when a database is
+# already present. Delete /var/lib/aide/aide.db to have it rebuilt.
+exorcism_aide_initialise: true

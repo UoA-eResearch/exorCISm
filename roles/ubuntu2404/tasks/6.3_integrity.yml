@@ -1,0 +1,25 @@
+---
+- name: 6.3.1 Ensure AIDE is installed
+  ansible.builtin.apt:
+    name:
+      - aide
+      - aide-common
+    state: present
+  tags: 6.3_integrity
+
+# aideinit walks every path in the policy, so it is slow on a large host. The
+# creates guard means it runs once; removing the database rebuilds it.
+- name: 6.3.1 Initialise the AIDE database
+  ansible.builtin.command:
+    cmd: aideinit -y -f
+    creates: /var/lib/aide/aide.db
+  when: exorcism_aide_initialise
+  tags: 6.3_integrity
+
+- name: 6.3.2 Ensure filesystem integrity is regularly checked
+  ansible.builtin.systemd_service:
+    name: dailyaidecheck.timer
+    state: started
+    enabled: true
+    masked: false
+  tags: 6.3_integrity

@@ -25,6 +25,11 @@
   when: exorcism_section_1_1_kernel_modules_enabled
   tags: "1.1_kernel_modules"
 
+- name: 1.3 Mandatory Access Control
+  ansible.builtin.include_tasks: 1.3_apparmor.yml
+  when: exorcism_section_1_3_apparmor_enabled
+  tags: "1.3_apparmor"
+
 - name: 1.5 Additional Process Hardening
   ansible.builtin.include_tasks: 1.5_core_dumps.yml
   when: exorcism_section_1_5_core_dumps_enabled
@@ -34,6 +39,11 @@
   ansible.builtin.include_tasks: 1.6_banner.yml
   when: exorcism_section_1_6_banner_enabled
   tags: "1.6_banner"
+
+- name: 1.7 GDM Configuration
+  ansible.builtin.include_tasks: 1.7_gdm.yml
+  when: exorcism_section_1_7_gdm_enabled
+  tags: "1.7_gdm"
 
 - name: 2.2 Client Software
   ansible.builtin.include_tasks: 2.2_clients.yml
@@ -49,6 +59,11 @@
   ansible.builtin.include_tasks: 2.4_cron.yml
   when: exorcism_section_2_4_cron_enabled
   tags: "2.4_cron"
+
+- name: 3.1 Wireless and Bluetooth
+  ansible.builtin.include_tasks: 3.1_wireless.yml
+  when: exorcism_section_3_1_wireless_enabled
+  tags: "3.1_wireless"
 
 - name: 3.2 Network Kernel Modules
   ansible.builtin.include_tasks: 3.2_net_modules.yml
@@ -89,3 +104,8 @@
   ansible.builtin.include_tasks: 6.1_logging.yml
   when: exorcism_section_6_1_logging_enabled
   tags: "6.1_logging"
+
+- name: 6.3 Filesystem Integrity
+  ansible.builtin.include_tasks: 6.3_integrity.yml
+  when: exorcism_section_6_3_integrity_enabled
+  tags: "6.3_integrity"

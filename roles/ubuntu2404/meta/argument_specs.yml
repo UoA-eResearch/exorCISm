@@ -15,6 +15,13 @@ argument_specs:
         default: true
         description: Apply section 1.1, which blocks filesystem and hardware kernel modules from loading.
 
+      exorcism_section_1_3_apparmor_enabled:
+        type: bool
+        default: false
+        description:
+          - Apply section 1.3, which installs AppArmor and restricts unprivileged unconfined profiles.
+          - Off by default, because a profile that does not match how a site runs an application blocks it.
+
       exorcism_section_1_5_core_dumps_enabled:
         type: bool
         default: true
@@ -24,6 +31,13 @@ argument_specs:
         type: bool
         default: true
         description: Apply section 1.6, which writes the login warning banners.
+
+      exorcism_section_1_7_gdm_enabled:
+        type: bool
+        default: true
+        description:
+          - Apply section 1.7, which configures the GDM login screen.
+          - Applies only where GDM is installed, so a headless host is unaffected.
 
       exorcism_section_2_2_clients_enabled:
         type: bool
@@ -39,6 +53,11 @@ argument_specs:
         type: bool
         default: true
         description: Apply section 2.4, which restricts cron permissions and access.
+
+      exorcism_section_3_1_wireless_enabled:
+        type: bool
+        default: true
+        description: Apply section 3.1, which disables wireless interfaces and bluetooth.
 
       exorcism_section_3_2_net_modules_enabled:
         type: bool
@@ -245,3 +264,47 @@ argument_specs:
         elements: str
         default: []
         description: Service accounts with UID 1000 or above exempt from password ageing and inactivity locking.
+
+      exorcism_section_6_3_integrity_enabled:
+        type: bool
+        default: false
+        description:
+          - Apply section 6.3, which installs AIDE and enables its daily check.
+          - Off by default, because building the initial database takes minutes to hours.
+
+      exorcism_apparmor_restrict_unprivileged_unconfined:
+        type: int
+        default: 1
+        choices: [0, 1]
+        description: Value for kernel.apparmor_restrict_unprivileged_unconfined. CIS asks for 1.
+
+      exorcism_gdm_idle_delay:
+        type: int
+        default: 900
+        description: Seconds of inactivity before the GDM screen blanks. CIS asks for more than 0 and no more than 900.
+
+      exorcism_gdm_lock_delay:
+        type: int
+        default: 5
+        description: Seconds after blanking before the screen locks. CIS asks for no more than 5.
+
+      exorcism_disable_wireless:
+        type: bool
+        default: true
+        description:
+          - Make every wireless driver the running kernel ships unloadable.
+          - Set false on a host that uses wireless networking.
+
+      exorcism_disable_bluetooth:
+        type: bool
+        default: true
+        description:
+          - Stop and mask bluetooth.service, rather than purging bluez, which desktop and audio packages depend on.
+          - Set false on a host with bluetooth peripherals, such as a keyboard or mouse.
+
+      exorcism_aide_initialise:
+        type: bool
+        default: true
+        description:
+          - Build the initial AIDE database when none exists.
+          - Only used when section 6.3 is enabled.
