@@ -241,6 +241,40 @@ argument_specs:
           - A host given its IPv6 address by SLAAC has no other source for its address or default route, so 0 strands it on the next boot.
           - Leave at 0 only where IPv6 addresses are static or DHCPv6-assigned.
 
+      # 4.4 Firewall. Keeps its v1.0.0 number: v2.0.0 replaced the iptables and
+      # nftables sections with a ufw only section, which this role does not use
+      exorcism_section_4_4_firewall_enabled:
+        type: bool
+        default: false
+        description:
+          - Apply section 4.4, which makes the role own the host iptables rulesets.
+          - Off by default because a default-DROP policy can cut a host off if applied without review.
+
+      exorcism_firewall_allowed_tcp_ports:
+        type: list
+        elements: int
+        default: [22]
+        description: Inbound TCP ports accepted. Everything else is dropped by the default policy.
+
+      exorcism_firewall_allow_all_outbound:
+        type: bool
+        default: true
+        description:
+          - Whether the host may open new outbound connections, implementing CIS 4.4.2.3.
+          - Set false for egress filtering, where every permitted destination must be named in the extra rules.
+
+      exorcism_firewall_extra_rules_v4:
+        type: list
+        elements: str
+        default: []
+        description: Extra IPv4 rules appended to the filter table, in iptables-save syntax.
+
+      exorcism_firewall_extra_rules_v6:
+        type: list
+        elements: str
+        default: []
+        description: Extra IPv6 rules appended to the filter table, in ip6tables-save syntax.
+
       # 5.1 SSH server
       exorcism_section_5_1_ssh_enabled:
         type: bool
