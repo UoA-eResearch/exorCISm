@@ -28,3 +28,44 @@
     mode: "0644"
     force: true
   tags: 1.6_banner
+
+# Stat first. Only /etc/update-motd.d ships on Ubuntu, and handing find a
+# path that is not there makes it warn once per missing directory on every run.
+- name: 1.6.6 Check which MOTD directories exist
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /etc/update-motd.d
+    - /etc/motd.d
+    - /run/motd.d
+    - /usr/lib/motd.d
+  register: exorcism_motd_dirs
+  when: exorcism_restrict_motd_files
+  tags: 1.6_banner
+
+- name: 1.6.6 Find files in the MOTD directories
+  ansible.builtin.find:
+    paths: "{{ exorcism_motd_present }}"
+    file_type: file
+  register: exorcism_motd_files
+  vars:
+    exorcism_motd_present: >-
+      {{ exorcism_motd_dirs.results | default([])
+         | selectattr('stat.isdir', 'defined') | selectattr('stat.isdir')
+         | map(attribute='item') | list }}
+  when:
+    - exorcism_restrict_motd_files
+    - exorcism_motd_present | length > 0
+  tags: 1.6_banner
+
+- name: 1.6.6 Ensure access to /etc/motd is configured
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ exorcism_motd_files.files | default([]) | map(attribute='path') | list }}"
+  loop_control:
+    label: "{{ item }}"
+  when: exorcism_restrict_motd_files
+  tags: 1.6_banner

@@ -1,0 +1,29 @@
+---
+# CIS accepts either removing the package or masking the service. These purge,
+# which is the stronger of the two, and is why each has its own variable: a
+# host that genuinely serves one of these needs the package, not a masked unit.
+- name: 2.1.3 Ensure avahi daemon services are not in use
+  ansible.builtin.apt:
+    name: avahi-daemon
+    state: absent
+    purge: true
+  when: exorcism_remove_avahi
+  tags: 2.1_services
+
+- name: 2.1.6 Ensure web server services are not in use
+  ansible.builtin.apt:
+    name:
+      - apache2
+      - nginx
+    state: absent
+    purge: true
+  when: exorcism_remove_web_server
+  tags: 2.1_services
+
+- name: 2.1.14 Ensure print server services are not in use
+  ansible.builtin.apt:
+    name: cups
+    state: absent
+    purge: true
+  when: exorcism_remove_print_server
+  tags: 2.1_services

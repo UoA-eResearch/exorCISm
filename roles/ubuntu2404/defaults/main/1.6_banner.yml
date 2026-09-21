@@ -10,3 +10,10 @@ exorcism_banner_text: "Authorized users only. All activity may be monitored and 
 # about the operating system, so it must not use the \m, \r, \s or \v escapes
 # or name the distribution and release.
 exorcism_motd_text: "{{ exorcism_banner_text }}"
+
+# 1.6.6. CIS stats every MOTD path, not just /etc/motd, and wants each at 0644
+# or tighter owned by root. Ubuntu ships executable scripts in
+# /etc/update-motd.d/ that generate the dynamic MOTD, so satisfying this stops
+# the news, help text and package counts shown after login. The static
+# /etc/motd above is unaffected. Set false to keep the dynamic MOTD.
+exorcism_restrict_motd_files: true

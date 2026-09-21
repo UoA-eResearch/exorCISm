@@ -1,0 +1,12 @@
+---
+# 2.1.3. Removes avahi-daemon, which advertises and discovers services on the
+# local network by mDNS. A server has no use for it.
+exorcism_remove_avahi: true
+
+# 2.1.6. Removes apache2 and nginx. Set false on any host that serves HTTP,
+# including one where a web server only terminates TLS in front of an
+# application, because purging it takes the listener with it.
+exorcism_remove_web_server: true
+
+# 2.1.14. Removes cups. Set false on a host that prints.
+exorcism_remove_print_server: true

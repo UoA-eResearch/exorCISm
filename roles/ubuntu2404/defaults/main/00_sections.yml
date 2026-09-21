@@ -19,6 +19,8 @@ exorcism_section_1_6_banner_enabled: true
 # Applies only where GDM is installed, so a headless host is unaffected
 exorcism_section_1_7_gdm_enabled: true
 
+exorcism_section_2_1_services_enabled: true
+
 exorcism_section_2_2_clients_enabled: true
 
 exorcism_section_2_3_time_enabled: true

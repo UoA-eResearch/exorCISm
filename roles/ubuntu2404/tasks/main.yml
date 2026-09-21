@@ -45,6 +45,11 @@
   when: exorcism_section_1_7_gdm_enabled
   tags: "1.7_gdm"
 
+- name: 2.1 Server Services
+  ansible.builtin.include_tasks: 2.1_services.yml
+  when: exorcism_section_2_1_services_enabled
+  tags: "2.1_services"
+
 - name: 2.2 Client Software
   ansible.builtin.include_tasks: 2.2_clients.yml
   when: exorcism_section_2_2_clients_enabled
