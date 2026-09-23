@@ -3,6 +3,7 @@ SHELL := /bin/bash
 NAMESPACE := uoa_eresearch
 COLLECTION := exorcism
 PLAYBOOK := $(NAMESPACE).$(COLLECTION).ubuntu2404
+CLEANUP_PLAYBOOK := $(NAMESPACE).$(COLLECTION).ubuntu2404_cleanup
 VERSION := $(shell awk '/^version:/ { print $$2; exit }' galaxy.yml)
 
 DIST_DIR := dist
@@ -46,6 +47,8 @@ test: build ## Dry run the role in a throwaway Ubuntu 24.04 container
 	@docker exec $(CONTAINER) apt-get update --quiet >/dev/null
 	ANSIBLE_COLLECTIONS_PATH=$(COLLECTIONS_DIR) $(UV_ANSIBLE) ansible-playbook \
 		$(PLAYBOOK) -i '$(CONTAINER),' -c community.docker.docker --check --diff
+	ANSIBLE_COLLECTIONS_PATH=$(COLLECTIONS_DIR) $(UV_ANSIBLE) ansible-playbook \
+		$(CLEANUP_PLAYBOOK) -i '$(CONTAINER),' -c community.docker.docker --check --diff
 
 ##@ LINT
 .PHONY: lint

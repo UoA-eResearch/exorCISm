@@ -10,16 +10,6 @@
   notify: Reload sysctl
   tags: 1.5_core_dumps
 
-# Earlier releases wrote these settings to 90-coredump.conf. Both files load,
-# so a host upgraded in place would keep applying the old one after a setting
-# is changed or dropped here.
-- name: Remove the superseded coredump sysctl file
-  ansible.builtin.file:
-    path: /etc/sysctl.d/90-coredump.conf
-    state: absent
-  notify: Reload sysctl
-  tags: 1.5_core_dumps
-
 - name: Disable core dumps in /etc/security/limits.conf
   ansible.builtin.copy:
     src: 90-disablecore.conf

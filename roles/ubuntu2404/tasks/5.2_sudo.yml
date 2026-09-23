@@ -1,5 +1,5 @@
 ---
-- name: 5.2.3 Ensure sudo log file exists
+- name: 5.2.2, 5.2.3 Ensure sudo commands use pty and a log file exists
   ansible.builtin.copy:
     src: 90-sudo.conf
     dest: /etc/sudoers.d/90-sudo.conf

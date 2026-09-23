@@ -1,0 +1,37 @@
+---
+# Removes what earlier releases of the ubuntu2404 role wrote and the current
+# release no longer manages. The role only adds and changes, so a host
+# upgraded in place keeps every superseded file and package until this runs.
+# Run it once after upgrading the collection, dry run first:
+#
+#   ansible-playbook uoa_eresearch.exorcism.ubuntu2404_cleanup -i inventory.yml --check --diff
+#
+# Each task names the release that wrote the item and the release that stopped
+# managing it, so an entry can be retired once no host predates it.
+- name: Clean up after earlier releases of the Ubuntu 24.04 role
+  hosts: all
+  become: true
+
+  handlers:
+    - name: Reload sysctl
+      ansible.builtin.command: sysctl --system
+      changed_when: true
+
+  tasks:
+    # 0.2.0 wrote the ASLR and suid_dumpable settings here and 0.3.0 moved
+    # them to 90-process-hardening.conf. Both files load, so a host that kept
+    # this one would keep applying it after a setting is changed or dropped.
+    - name: Remove the coredump sysctl file, written by 0.2.0 and superseded in 0.3.0
+      ansible.builtin.file:
+        path: /etc/sysctl.d/90-coredump.conf
+        state: absent
+      notify: Reload sysctl
+
+    # 0.2.0 installed the package for a v1.0.0 control. v2.0.0 asks only that
+    # its units are not in use, which 0.3.0 does by masking them, so the
+    # package has nothing left to do.
+    - name: Remove systemd-journal-remote, installed by 0.2.0 and unused since 0.3.0
+      ansible.builtin.apt:
+        name: systemd-journal-remote
+        state: absent
+        purge: true
