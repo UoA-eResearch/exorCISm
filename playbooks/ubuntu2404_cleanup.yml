@@ -35,3 +35,13 @@
         name: systemd-journal-remote
         state: absent
         purge: true
+
+    # 0.3.0 and earlier wrote the sudo defaults to a name containing a dot,
+    # which sudo skips, so they were never applied. 0.4.0 writes 90-sudo
+    # instead. This must go with it: the audit greps /etc/sudoers* by path and
+    # matches the old file whatever its name, so leaving it keeps 5.2.2 and
+    # 5.2.3 reporting as passing while sudo applies neither.
+    - name: Remove the dotted sudo drop-in, written by 0.3.0 and superseded in 0.4.0
+      ansible.builtin.file:
+        path: /etc/sudoers.d/90-sudo.conf
+        state: absent
