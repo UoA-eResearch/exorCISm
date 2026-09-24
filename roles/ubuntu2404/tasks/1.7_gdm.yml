@@ -41,3 +41,23 @@
         mode: "0644"
         force: true
       notify: Update dconf
+
+    - name: Ensure the dconf locks directory exists
+      ansible.builtin.file:
+        path: /etc/dconf/db/local.d/locks
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    # Without this every 1.7 control fails its lock sub-check while passing its
+    # value sub-check, which is how all five read on the 2026-09-22 scan.
+    - name: 1.7.1-1.7.5 Ensure the GDM settings cannot be overridden by a user
+      ansible.builtin.copy:
+        src: dconf-locks
+        dest: /etc/dconf/db/local.d/locks/00-exorcism
+        owner: root
+        group: root
+        mode: "0644"
+        force: true
+      notify: Update dconf

@@ -1,0 +1,13 @@
+# 1.7.1-1.7.5 Prevent a user overriding the settings in 00-exorcism.
+#
+# Every 1.7 control has two sub-checks: the value, and whether the key is
+# locked. Writing the value alone passes the first and fails the second, so
+# each key set in 00-exorcism is named here as well.
+/org/gnome/login-screen/banner-message-enable
+/org/gnome/login-screen/banner-message-text
+/org/gnome/login-screen/disable-user-list
+/org/gnome/desktop/session/idle-delay
+/org/gnome/desktop/screensaver/lock-delay
+/org/gnome/desktop/media-handling/automount
+/org/gnome/desktop/media-handling/automount-open
+/org/gnome/desktop/media-handling/autorun-never
