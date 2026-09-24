@@ -1,12 +1,19 @@
 ---
+# No .conf suffix: sudo ignores every file in /etc/sudoers.d whose name
+# contains a dot, so the settings were written and never applied. Tenable
+# greps /etc/sudoers* by path and matched the file regardless, so both
+# controls reported as passing while sudo applied neither.
+#
+# validate, because a malformed file here locks everyone out of root.
 - name: 5.2.2, 5.2.3 Ensure sudo commands use pty and a log file exists
   ansible.builtin.copy:
-    src: 90-sudo.conf
-    dest: /etc/sudoers.d/90-sudo.conf
+    src: 90-sudo
+    dest: /etc/sudoers.d/90-sudo
     owner: root
     group: root
     mode: "0440"
     force: true
+    validate: visudo -cf %s
   tags: 5.2_sudo
 
 - name: 5.2.7 Ensure access to the su command is restricted (create group)

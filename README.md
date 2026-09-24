@@ -62,6 +62,7 @@ Every variable is optional. Running the role with none set still hardens the hos
 | `exorcism_blacklist_kernel_modules_exclude` | `[]` | The host runs containers, which need `overlay`, or uses snaps, which need `squashfs` |
 | `exorcism_blacklist_network_modules_exclude` | `[]` | The host needs an uncommon transport, such as `sctp` for telecoms signalling or `can` for a vehicle bus |
 | `exorcism_ntp_servers` | `[]` | You have internal time servers |
+| `exorcism_ntp_fallback_servers` | `[]` | The host uses `systemd-timesyncd`. CIS 2.3.2.1 requires `FallbackNTP` as well as `NTP`, and it fails until both are set |
 | `exorcism_password_excluded_users` | `[]` | Service accounts must not have passwords expire or lock |
 | `exorcism_ssh_disable_forwarding` | `true` | It is a bastion, or users need port forwarding. Set `false` |
 | `exorcism_ssh_allow_groups` | `[]` | Restricting SSH to named groups, which is the only way to express every directory user |
@@ -75,7 +76,7 @@ Every variable is optional. Running the role with none set still hardens the hos
 | `exorcism_remove_web_server` | `true` | The host serves HTTP, including where a web server only terminates TLS for an application. Set `false` |
 | `exorcism_restrict_motd_files` | `true` | You want to keep Ubuntu's dynamic message of the day. Set `false` |
 
-For a worked example covering these in context, see [playbooks/ubuntu2404_example.yml](playbooks/ubuntu2404_example.yml). For the complete reference of all 55 variables with types, defaults and permitted values, run `ansible-doc -t role uoa_eresearch.exorcism.ubuntu2404`.
+For a worked example covering these in context, see [playbooks/ubuntu2404_example.yml](playbooks/ubuntu2404_example.yml). For the complete reference of all 56 variables with types, defaults and permitted values, run `ansible-doc -t role uoa_eresearch.exorcism.ubuntu2404`.
 
 Variables fall into three kinds. Some are values the role cannot guess. Some are controls applied by default that you turn off when one breaks something. The rest are extra hardening left off by default because it can break a working system.
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.0 - 2026-09-25
+
+### Added
+
+- Lock the GDM dconf keys, so 1.7.1 to 1.7.5 satisfy their lock check
+- Add `exorcism_ntp_fallback_servers` for the timesyncd `FallbackNTP` parameter
+- Add a clean-up playbook for what earlier releases wrote and no longer manage
+- Validate the sudo drop-in with `visudo` before writing it
+
+### Changed
+
+- Write the default umask to `/etc/profile.d`, which is where v2.0.0 audits it
+- Make `KexAlgorithms` subtractive, so post-quantum algorithms stay available
+- Name the sudo drop-in `90-sudo`, which sudo reads, rather than `90-sudo.conf`
+
+### Fixed
+
+- Remove the `tnftp` package as well as `ftp`
+- Set the inactive password lock with `chage`, which the user module left unset
+- Write the password history remember value to `pwhistory.conf`, not `opasswd`
+- Set `use_pty` in the sudo defaults
+
 ## 0.3.0 - 2026-09-21
 
 ### Added
