@@ -153,6 +153,15 @@ argument_specs:
         default: []
         description: NTP sources. Empty leaves the daemon's own configuration alone.
 
+      exorcism_ntp_fallback_servers:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Fallback NTP sources, used only by systemd-timesyncd.
+          - CIS 2.3.2.1 reads "NTP and/or FallbackNTP" but its audit requires both.
+          - Empty by default, so 2.3.2.1 fails until a site sets it.
+
       # 2.4 Job schedulers
       exorcism_section_2_4_cron_enabled:
         type: bool

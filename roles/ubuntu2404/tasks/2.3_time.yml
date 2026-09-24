@@ -66,7 +66,7 @@
     mode: "0755"
   when:
     - exorcism_time_daemon_resolved == 'timesyncd'
-    - exorcism_ntp_servers | length > 0
+    - (exorcism_ntp_servers | length > 0) or (exorcism_ntp_fallback_servers | length > 0)
   tags: 2.3_time
 
 - name: 2.3.2.1 Ensure systemd-timesyncd is configured with authorised timeservers
@@ -79,5 +79,5 @@
   notify: Restart timesyncd
   when:
     - exorcism_time_daemon_resolved == 'timesyncd'
-    - exorcism_ntp_servers | length > 0
+    - (exorcism_ntp_servers | length > 0) or (exorcism_ntp_fallback_servers | length > 0)
   tags: 2.3_time

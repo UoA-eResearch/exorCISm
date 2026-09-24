@@ -1,2 +1,7 @@
 [Time]
+{% if exorcism_ntp_servers | length > 0 %}
 NTP={{ exorcism_ntp_servers | join(' ') }}
+{% endif %}
+{% if exorcism_ntp_fallback_servers | length > 0 %}
+FallbackNTP={{ exorcism_ntp_fallback_servers | join(' ') }}
+{% endif %}

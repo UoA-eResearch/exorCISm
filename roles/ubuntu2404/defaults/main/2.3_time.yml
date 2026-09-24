@@ -14,3 +14,14 @@ exorcism_time_daemon: auto
 # in inventory, alongside exorcism_time_daemon if a specific daemon is
 # required.
 exorcism_ntp_servers: []
+
+# Fallback NTP sources, used only by systemd-timesyncd; chrony has no
+# equivalent directive and does not need one.
+#
+# CIS 2.3.2.1 reads "NTP and/or FallbackNTP", but the audit script tests both
+# parameters and fails if either is unset, so in practice both are required.
+# Empty by default for the same reason as the list above, which means 2.3.2.1
+# keeps failing until a site sets this. It is only worth setting to sources
+# genuinely independent of exorcism_ntp_servers: naming the same round robin
+# twice satisfies the scanner without providing a fallback.
+exorcism_ntp_fallback_servers: []

@@ -12,6 +12,7 @@
     - exorcism_blacklist_network_modules
     - exorcism_blacklist_network_modules_exclude
     - exorcism_ntp_servers
+    - exorcism_ntp_fallback_servers
     - exorcism_cron_allow_extra_users
     - exorcism_firewall_allowed_tcp_ports
     - exorcism_firewall_extra_rules_v4
