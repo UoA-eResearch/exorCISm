@@ -2,51 +2,25 @@
 # Section toggles. Each controls whether a whole CIS section is applied.
 # Numbers match the CIS Ubuntu 24.04 benchmark, the task file names and the
 # task tags, so a section can be traced from here to the controls it applies.
-#
-# Some sections are off by default because enabling them unconfigured would
-# leave a host worse off than not running them at all.
+# Why a section is on or off by default is in meta/argument_specs.yml, which
+# ansible-doc renders.
 
 exorcism_section_1_1_kernel_modules_enabled: true
-
-# Off by default: AppArmor confines applications by profile, and a profile
-# that does not match how a site runs an application blocks it
 exorcism_section_1_3_apparmor_enabled: false
-
 exorcism_section_1_5_core_dumps_enabled: true
-
 exorcism_section_1_6_banner_enabled: true
-
-# Applies only where GDM is installed, so a headless host is unaffected
 exorcism_section_1_7_gdm_enabled: true
-
 exorcism_section_2_1_services_enabled: true
-
 exorcism_section_2_2_clients_enabled: true
-
 exorcism_section_2_3_time_enabled: true
-
 exorcism_section_2_4_cron_enabled: true
-
 exorcism_section_3_1_wireless_enabled: true
-
 exorcism_section_3_2_net_modules_enabled: true
-
 exorcism_section_3_3_net_enabled: true
-
-# Off by default: the shipped rulesets set a default-DROP policy and would
-# cut a host off if applied without review
 exorcism_section_4_4_firewall_enabled: false
-
 exorcism_section_5_1_ssh_enabled: true
-
 exorcism_section_5_2_sudo_enabled: true
-
 exorcism_section_5_3_password_enabled: true
-
 exorcism_section_5_4_password_enabled: true
-
 exorcism_section_6_1_logging_enabled: true
-
-# Off by default: aideinit walks the whole filesystem and takes minutes to
-# hours on a large host, and the database needs a site policy to be useful
 exorcism_section_6_3_integrity_enabled: false

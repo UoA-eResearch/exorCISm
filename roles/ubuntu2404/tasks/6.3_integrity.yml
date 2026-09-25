@@ -7,8 +7,8 @@
     state: present
   tags: 6.3_integrity
 
-# aideinit walks every path in the policy, so it is slow on a large host. The
-# creates guard means it runs once; removing the database rebuilds it.
+# The aideinit run walks every path in the policy, so it is slow on a large
+# host. The creates guard means it runs once; removing the database rebuilds it.
 - name: 6.3.1 Initialise the AIDE database
   ansible.builtin.command:
     cmd: aideinit -y -f

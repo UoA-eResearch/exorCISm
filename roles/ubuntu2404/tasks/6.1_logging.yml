@@ -35,7 +35,7 @@
   tags: 6.1_logging
 
 # Stat first so the label below can name the mode each directory is coming
-# from, the same way the file loop further down does.
+# from, the same way the file loop further down does
 - name: 6.1.3.1 Read the current log directory permissions
   ansible.builtin.stat:
     path: "{{ item }}"
@@ -62,19 +62,15 @@
 
 # Two tasks rather than one find -exec chmod, so that a dry run reports the
 # files it would touch. A single shell task is skipped in check mode, which
-# hid the largest change this role makes to /var/log.
-#
-# -printf carries the current mode back with each path, so the task below can
-# label every file with what it is changing from. Without it the only way to
-# show the before value is the module diff, which is a six line JSON block per
-# file and buries a run that touches a hundred of them.
+# would hide the largest change this role makes to /var/log. -printf carries
+# the current mode back with each path, so the task below can label each file
+# with what it is changing from rather than emit a JSON diff block per file.
 #
 # -perm /137 matches only files carrying a bit the control forbids: owner
 # execute, group write or execute, or anything for other. Testing for "not
-# already 0640" instead would also match the files shipped tighter than that,
-# such as boot.log at 0600 and the installer's autoinstall-user-data at 0400,
-# and setting those to 0640 loosens them. The control is a ceiling, not a
-# target, so a file already below it is left alone.
+# already 0640" instead would also match files shipped tighter than that, such
+# as boot.log at 0600, and setting those to 0640 loosens them. The control is a
+# ceiling, not a target, so a file already below it is left alone.
 - name: 6.1.3.1 Find logfiles with permissions wider than 0640
   ansible.builtin.command:
     argv:
@@ -103,13 +99,14 @@
   check_mode: false
   tags: 6.1_logging
 
-# lastlog, btmp and wtmp are excluded above, rotated copies included. They are
-# owned by the utmp group and read through it by lastlog(1) and last(1), so
-# 0640 root:utmp breaks both for every non-root user. Their shipped modes
-# already satisfy the control.
+# The lastlog, btmp and wtmp files are excluded above, rotated copies included.
+# They are owned by the utmp group and read through it by lastlog(1) and
+# last(1), so 0640 root:utmp breaks both for every non-root user. Their shipped
+# modes already satisfy the control.
 #
-# diff is off because the label carries the same information in one line. The
-# mode arrives from find as %m, which drops the leading zero, so pad it back.
+# Module diff output is off because the label carries the same information in
+# one line. The mode arrives from find as %m, which drops the leading zero, so
+# pad it back.
 - name: 6.1.3.1 Ensure access to all logfiles has been configured (all files in /var/log)
   ansible.builtin.file:
     path: "{{ exorcism_logfile.1 }}"

@@ -1,19 +1,12 @@
 ---
-# Accounts permitted to log in over SSH. An empty list omits the AllowUsers
-# directive entirely, which permits all users. Setting it replaces the list.
+# Accounts permitted to log in over SSH. Empty omits AllowUsers, permitting all
 exorcism_ssh_allow_users: []
 
-# Applies sshd DisableForwarding. Bastion hosts need this set to false
+# Applies sshd DisableForwarding
 exorcism_ssh_disable_forwarding: true
 
-# Groups permitted to log in over SSH. CIS 5.1.4 accepts AllowUsers or
-# AllowGroups, and a group is the only way to express "every LDAP user" without
-# naming each one. An empty list omits the directive.
+# Groups permitted to log in over SSH. Empty omits AllowGroups
 exorcism_ssh_allow_groups: []
 
-# Directives the role will not write, for a host where another tool owns them.
-# sshd takes the first value it obtains for a keyword and files in
-# sshd_config.d are read in lexical order, so a file sorting before 90-ssh.conf
-# wins. Naming the keyword here stops the role claiming a setting it cannot
-# deliver, which otherwise reads in the diff as though it had applied.
+# Directives the role will not write, for a host where another tool owns them
 exorcism_ssh_omit_directives: []

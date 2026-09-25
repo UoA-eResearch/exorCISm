@@ -1,9 +1,3 @@
 ---
-# CIS 1.5.5 wants Automatic Error Reporting gone, which means purging apport.
-# On a server that costs nothing. On anything built from an Ubuntu desktop
-# image it is not that simple, because apport-gtk is a dependency of desktop
-# metapackages, and on NVIDIA DGX hardware nvidia-system-station-core depends
-# on it too. Purging apport takes those with it and leaves the rest of the
-# desktop as autoremove candidates, so set this false on such a host and
-# disable the reporting service instead.
+# 1.5.7. Purge apport rather than disabling its reporting service
 exorcism_remove_apport: true

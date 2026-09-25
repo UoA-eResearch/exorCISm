@@ -13,7 +13,7 @@
   ('5.1.9 Ensure sshd GSSAPIAuthentication is disabled', 'GSSAPIAuthentication', 'no'),
   ('5.1.10 Ensure sshd HostbasedAuthentication is disabled', 'HostbasedAuthentication', 'no'),
   ('5.1.11 Ensure sshd IgnoreRhosts is enabled', 'IgnoreRhosts', 'yes'),
-  ('5.1.12, 5.1.23 Ensure sshd KexAlgorithms is configured.\n# Subtractive, which is the form CIS gives for both controls: it removes the\n# three algorithms the benchmark names as weak and leaves OpenSSH\'s own\n# defaults for everything else. An absolute list satisfied 5.1.12 but failed\n# 5.1.23, because it pinned the set before sntrup761x25519-sha512 existed and\n# would do the same again when OpenSSH 9.9 adds mlkem768x25519-sha256', 'KexAlgorithms', '-diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1'),
+  ('5.1.12, 5.1.23 Ensure sshd KexAlgorithms is configured.\n# Subtractive, which is the form CIS gives for both controls: it removes the\n# three algorithms the benchmark names as weak and leaves OpenSSH\'s own\n# defaults for everything else. An absolute list satisfies 5.1.12 but fails\n# 5.1.23, because it pins the set and excludes any post-quantum algorithm a\n# later OpenSSH adds', 'KexAlgorithms', '-diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1'),
   ('5.1.13 Ensure sshd LoginGraceTime is configured', 'LoginGraceTime', '60s'),
   ('5.1.14 Ensure sshd LogLevel is configured', 'LogLevel', 'INFO'),
   ('5.1.15 Ensure sshd MACs are configured.\n# hmac-sha1 is permitted: the benchmark\'s weak list names hmac-sha1-96,\n# not hmac-sha1, and its notes count HMAC-SHA1 among the FIPS 140 approved\n# MACs. Removing it is a site decision, not a CIS requirement', 'MACs', 'hmac-sha1,hmac-sha2-256,hmac-sha2-512'),

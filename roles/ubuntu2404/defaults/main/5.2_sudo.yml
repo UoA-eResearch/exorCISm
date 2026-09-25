@@ -1,8 +1,3 @@
 ---
-# Group whose members may use su, enforced via pam_wheel. CIS expects it to
-# be empty, so that sudo is used instead of su.
-#
-# The obscure name is deliberate. A conventional name such as wheel may
-# already exist with members, in which case pointing pam_wheel at it grants
-# su to those members rather than denying it to everyone.
+# Group whose members may use su, enforced via pam_wheel. CIS expects it empty
 exorcism_su_group: sugroup

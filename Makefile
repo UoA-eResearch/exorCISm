@@ -32,7 +32,7 @@ test: build ## Dry run the role in a throwaway Ubuntu 24.04 container
 	@rm -rf $(COLLECTIONS_DIR)
 	# Name the tarball rather than glob it, because dist/ keeps every version
 	# ever built and a glob asks galaxy to resolve all of them at once.
-	# --force because galaxy resolves "already installed" against the configured
+	# Pass --force, because galaxy resolves "already installed" against the configured
 	# collections path as well as -p, so a copy in ~/.ansible makes this a no-op
 	# and the playbook is then not found.
 	$(UV_ANSIBLE) ansible-galaxy collection install $(TARBALL) -p $(COLLECTIONS_DIR) --force

@@ -18,29 +18,36 @@
       changed_when: true
 
   tasks:
-    # 0.2.0 wrote the ASLR and suid_dumpable settings here and 0.3.0 moved
-    # them to 90-process-hardening.conf. Both files load, so a host that kept
-    # this one would keep applying it after a setting is changed or dropped.
+    # The line was appended with no regexp, so a host whose umask changed
+    # carries one per value it ever had. Matching ^umask removes them all, and
+    # would also remove a line added by hand. The value still applies, because
+    # the role now writes it to /etc/profile.d, which /etc/profile sources
+    - name: Remove the /etc/profile umask line, written by 0.1.0 and superseded in 0.4.0
+      ansible.builtin.lineinfile:
+        path: /etc/profile
+        regexp: '^umask\s'
+        state: absent
+        backup: true
+
+    # Both files load, so a host that keeps this one keeps applying its ASLR
+    # and suid_dumpable settings after 90-process-hardening.conf changes them
     - name: Remove the coredump sysctl file, written by 0.2.0 and superseded in 0.3.0
       ansible.builtin.file:
         path: /etc/sysctl.d/90-coredump.conf
         state: absent
       notify: Reload sysctl
 
-    # 0.2.0 installed the package for a v1.0.0 control. v2.0.0 asks only that
-    # its units are not in use, which 0.3.0 does by masking them, so the
-    # package has nothing left to do.
+    # CIS v2.0.0 asks only that the units are not in use, which the role achieves
+    # by masking them, so the package has nothing left to do
     - name: Remove systemd-journal-remote, installed by 0.2.0 and unused since 0.3.0
       ansible.builtin.apt:
         name: systemd-journal-remote
         state: absent
         purge: true
 
-    # 0.3.0 and earlier wrote the sudo defaults to a name containing a dot,
-    # which sudo skips, so they were never applied. 0.4.0 writes 90-sudo
-    # instead. This must go with it: the audit greps /etc/sudoers* by path and
-    # matches the old file whatever its name, so leaving it keeps 5.2.2 and
-    # 5.2.3 reporting as passing while sudo applies neither.
+    # The audit greps /etc/sudoers* by path and matches this file whatever its
+    # name, so leaving it keeps 5.2.2 and 5.2.3 reporting as passing while sudo,
+    # which skips any name containing a dot, applies neither
     - name: Remove the dotted sudo drop-in, written by 0.3.0 and superseded in 0.4.0
       ansible.builtin.file:
         path: /etc/sudoers.d/90-sudo.conf
