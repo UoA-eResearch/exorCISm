@@ -8,5 +8,5 @@ exorcism_ssh_disable_forwarding: true
 # Groups permitted to log in over SSH. Empty omits AllowGroups
 exorcism_ssh_allow_groups: []
 
-# sshd keywords the role will not write, for a host where another tool owns them
+# Directives the role will not write, for a host where another tool owns them
 exorcism_ssh_omit_directives: []

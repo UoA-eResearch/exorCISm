@@ -26,7 +26,7 @@ repository: https://github.com/UoA-eResearch/exorCISm
 homepage: https://github.com/UoA-eResearch/exorCISm
 issues: https://github.com/UoA-eResearch/exorCISm/issues
 
-# This collection uses only ansible.builtin modules.
+# This collection uses only ansible.builtin modules
 dependencies: {}
 
 build_ignore:

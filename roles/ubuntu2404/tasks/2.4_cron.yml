@@ -54,8 +54,8 @@
   diff: false
   tags: 2.4_cron
 
-# Left alone, because here the diff shows the user list being written rather
-# than a mode, and that is worth reading.
+# Module diff output stays on here, because it shows the user list being
+# written rather than a mode, which is worth reading
 - name: 2.4.1.9 Ensure access to crontab is configured
   ansible.builtin.copy:
     content: "{{ (['root'] + exorcism_cron_allow_extra_users) | join('\n') }}\n"

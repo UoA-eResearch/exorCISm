@@ -26,7 +26,7 @@
         state: absent
       notify: Reload sysctl
 
-    # v2.0.0 asks only that the units are not in use, which the role achieves
+    # CIS v2.0.0 asks only that the units are not in use, which the role achieves
     # by masking them, so the package has nothing left to do
     - name: Remove systemd-journal-remote, installed by 0.2.0 and unused since 0.3.0
       ansible.builtin.apt:

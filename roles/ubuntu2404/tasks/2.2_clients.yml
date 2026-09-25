@@ -13,7 +13,7 @@
 
 # CIS names both packages, and Ubuntu ships tnftp as the ftp command: the
 # audit greps dpkg for '^(ftp|tnftp)', so removing only one leaves the control
-# failing while the client is still on the host.
+# failing while the client is still on the host
 - name: 2.2.6 Ensure ftp client is not installed
   ansible.builtin.package:
     name:

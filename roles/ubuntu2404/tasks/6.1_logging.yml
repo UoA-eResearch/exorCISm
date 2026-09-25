@@ -35,7 +35,7 @@
   tags: 6.1_logging
 
 # Stat first so the label below can name the mode each directory is coming
-# from, the same way the file loop further down does.
+# from, the same way the file loop further down does
 - name: 6.1.3.1 Read the current log directory permissions
   ansible.builtin.stat:
     path: "{{ item }}"
