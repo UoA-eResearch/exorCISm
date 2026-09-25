@@ -1,6 +1,4 @@
 ---
-# 1.7.3. Seconds of inactivity before the screen blanks, and then before it
-# locks. CIS asks for an idle delay above 0 and no more than 900, and a lock
-# delay no more than 5.
+# 1.7.3. Seconds before the GDM screen blanks, then before it locks
 exorcism_gdm_idle_delay: 900
 exorcism_gdm_lock_delay: 5

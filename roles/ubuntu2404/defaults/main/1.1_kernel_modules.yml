@@ -1,10 +1,5 @@
 ---
-# Filesystem and hardware modules prevented from loading. Each becomes an
-# "install <module> /bin/false" and a "blacklist <module>" line.
-#
-# overlay is required by every container runtime, so blacklisting it breaks
-# Docker, containerd and k3s. Such hosts must name it in the exclude list
-# below rather than have it removed from here.
+# Filesystem and hardware modules prevented from loading
 exorcism_blacklist_kernel_modules:
   - cramfs
   - freevxfs
@@ -17,6 +12,5 @@ exorcism_blacklist_kernel_modules:
   - usb-storage
   - firewire-core
 
-# Modules to leave loadable, removed from the list above. Container hosts need
-# overlay, and hosts that use snaps need squashfs.
+# Modules to leave loadable, removed from the list above
 exorcism_blacklist_kernel_modules_exclude: []

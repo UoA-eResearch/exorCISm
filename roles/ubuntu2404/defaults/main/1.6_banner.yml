@@ -1,19 +1,9 @@
 ---
-# Written to /etc/issue and /etc/issue.net, the banners shown before a login
-# completes. Keep this to the warning, because anyone who can reach the host
-# can read it without authenticating.
+# Warning written to /etc/issue and /etc/issue.net, shown before a login completes
 exorcism_banner_text: "Authorized users only. All activity may be monitored and reported."
 
-# Written to /etc/motd, shown after a successful login. Defaults to the warning
-# above so an unconfigured host still gets one. Set it separately where a site
-# has its own message of the day. CIS 1.6.1 only asks that it disclose nothing
-# about the operating system, so it must not use the \m, \r, \s or \v escapes
-# or name the distribution and release.
+# Written to /etc/motd, shown after a successful login
 exorcism_motd_text: "{{ exorcism_banner_text }}"
 
-# 1.6.6. CIS stats every MOTD path, not just /etc/motd, and wants each at 0644
-# or tighter owned by root. Ubuntu ships executable scripts in
-# /etc/update-motd.d/ that generate the dynamic MOTD, so satisfying this stops
-# the news, help text and package counts shown after login. The static
-# /etc/motd above is unaffected. Set false to keep the dynamic MOTD.
+# 1.6.6. Set every MOTD file to 0644 owned by root, which stops the dynamic MOTD
 exorcism_restrict_motd_files: true
