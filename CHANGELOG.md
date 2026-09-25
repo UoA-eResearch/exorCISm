@@ -6,7 +6,6 @@
 
 - Lock the GDM dconf keys, so 1.7.1 to 1.7.5 satisfy their lock check
 - Add `exorcism_ntp_fallback_servers` for the timesyncd `FallbackNTP` parameter
-- Add a clean-up playbook for what earlier releases wrote and no longer manage
 - Validate the sudo drop-in with `visudo` before writing it
 
 ### Changed
@@ -20,7 +19,6 @@
 - Remove the `tnftp` package as well as `ftp`
 - Reload sysctl through the handler, rather than on every run of section 3.3
 - Tag the 5.4.1.1 login.defs task, which `--tags 5.4_password` skipped
-- Remove the superseded `/etc/profile` umask line in the clean-up playbook
 - Set the inactive password lock with `chage`, which the user module left unset
 - Write the password history remember value to `pwhistory.conf`, not `opasswd`
 - Set `use_pty` in the sudo defaults

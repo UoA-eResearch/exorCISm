@@ -115,11 +115,3 @@ The role changes SSH configuration, so be deliberate about how you connect.
 ## Applying part of the role
 
 Every CIS section carries a tag, so sections can be applied or skipped individually. List them with `--list-tags`, then use `--tags 5.1_ssh` to run one or `--skip-tags 4.4_firewall` to exclude one.
-
-## Upgrading
-
-A release sometimes stops managing a file or package an earlier release wrote. The role only adds and changes, so the old item stays on the host until the clean-up playbook removes it. Run it once after upgrading the collection, dry run first, the same way as the role.
-
-```sh
-ansible-playbook uoa_eresearch.exorcism.ubuntu2404_cleanup -i inventory.yml --check --diff
-```
