@@ -18,6 +18,17 @@
       changed_when: true
 
   tasks:
+    # The line was appended with no regexp, so a host whose umask changed
+    # carries one per value it ever had. Matching ^umask removes them all, and
+    # would also remove a line added by hand. The value still applies, because
+    # the role now writes it to /etc/profile.d, which /etc/profile sources
+    - name: Remove the /etc/profile umask line, written by 0.1.0 and superseded in 0.4.0
+      ansible.builtin.lineinfile:
+        path: /etc/profile
+        regexp: '^umask\s'
+        state: absent
+        backup: true
+
     # Both files load, so a host that keeps this one keeps applying its ASLR
     # and suid_dumpable settings after 90-process-hardening.conf changes them
     - name: Remove the coredump sysctl file, written by 0.2.0 and superseded in 0.3.0
