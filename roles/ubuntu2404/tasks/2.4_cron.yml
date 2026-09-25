@@ -1,5 +1,5 @@
 ---
-# One looped pair rather than six separate tasks, so a run prints one line per
+# One looped pair rather than seven separate tasks, so a run prints one line per
 # path instead of a six line JSON diff block each. The control number moves
 # into the loop label, so a change is still traceable to the benchmark item it
 # came from. The stat exists only to give the label a before value.

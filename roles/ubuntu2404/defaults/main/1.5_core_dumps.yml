@@ -1,5 +1,5 @@
 ---
-# CIS 1.5.5 wants Automatic Error Reporting gone, which means purging apport.
+# CIS 1.5.7 wants Automatic Error Reporting gone, which means purging apport.
 # On a server that costs nothing. On anything built from an Ubuntu desktop
 # image it is not that simple, because apport-gtk is a dependency of desktop
 # metapackages, and on NVIDIA DGX hardware nvidia-system-station-core depends

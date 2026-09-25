@@ -23,5 +23,5 @@ exorcism_ntp_servers: []
 # Empty by default for the same reason as the list above, which means 2.3.2.1
 # keeps failing until a site sets this. It is only worth setting to sources
 # genuinely independent of exorcism_ntp_servers: naming the same round robin
-# twice satisfies the scanner without providing a fallback.
+# twice satisfies the audit without providing a fallback.
 exorcism_ntp_fallback_servers: []

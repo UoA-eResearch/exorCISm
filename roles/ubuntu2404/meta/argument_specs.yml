@@ -54,7 +54,7 @@ argument_specs:
         type: bool
         default: true
         description:
-          - Satisfy CIS 1.5.5 by purging apport, rather than by setting enabled=0 and masking apport.service.
+          - Satisfy CIS 1.5.7 by purging apport, rather than by setting enabled=0 and masking apport.service.
           - Set false on desktop and NVIDIA DGX images, where apport-gtk is a dependency of metapackages that the purge would take with it.
 
       # 1.6 Command line warning banners
@@ -354,7 +354,7 @@ argument_specs:
         type: str
         default: "027"
         description:
-          - Default umask applied via /etc/profile and /etc/login.defs.
+          - Default umask applied via /etc/profile.d/60-default_umask.sh and /etc/login.defs.
           - Quote the value. An unquoted 027 is read as octal and becomes 23.
 
       exorcism_password_excluded_users:
