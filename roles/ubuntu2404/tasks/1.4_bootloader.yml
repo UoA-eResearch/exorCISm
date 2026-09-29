@@ -1,0 +1,107 @@
+---
+# Off by default. The password must never stop a host booting unattended, so
+# every Linux boot entry is marked --unrestricted, and the generated
+# configuration is checked before update-grub replaces the live one. If the
+# check fails the password file is removed again and the run stops, leaving
+# the live configuration untouched.
+- name: Check whether GRUB is installed
+  ansible.builtin.stat:
+    path: /etc/grub.d/10_linux
+  register: exorcism_grub_linux_script
+  tags: 1.4_bootloader
+
+- name: 1.4.1 Ensure bootloader password is set
+  when: exorcism_grub_linux_script.stat.exists
+  tags: 1.4_bootloader
+  block:
+    - name: 1.4.1 Ensure a GRUB superuser and password hash are supplied
+      ansible.builtin.assert:
+        that:
+          - exorcism_grub_superuser is match('^[A-Za-z0-9_.-]+$')
+          - exorcism_grub_password_hash is match('^grub\.pbkdf2\.sha512\.[0-9]+\.[0-9A-F]+\.[0-9A-F]+$')
+        fail_msg: >-
+          Section 1.4 needs exorcism_grub_password_hash, the grub.pbkdf2.sha512
+          hash printed by grub-mkpasswd-pbkdf2, and a plain exorcism_grub_superuser
+        quiet: true
+
+    # 10_linux is a grub-common conffile, so this edit can make
+    # unattended-upgrades hold back a grub-common update that changes it
+    - name: 1.4.1 Ensure Linux boot entries are unrestricted
+      ansible.builtin.lineinfile:
+        path: "{{ item }}"
+        regexp: '^(CLASS="--class gnu-linux --class gnu --class os[^"]*?)( --unrestricted)?"$'
+        line: '\g<1> --unrestricted"'
+        backrefs: true
+      loop:
+        - /etc/grub.d/10_linux
+        - /etc/grub.d/20_linux_xen
+      register: exorcism_grub_unrestricted
+
+    - name: 1.4.1 Ensure the GRUB superuser and password are configured
+      ansible.builtin.template:
+        src: 01_exorcism_password.j2
+        dest: /etc/grub.d/01_exorcism_password
+        owner: root
+        group: root
+        mode: "0700"
+      register: exorcism_grub_password_file
+      diff: false
+      no_log: true
+
+    # Also applied when the live configuration lacks the superuser, which is
+    # the case after a run interrupted before update-grub. Any non-zero exit,
+    # a missing grub.cfg included, leads to the checked apply below.
+    - name: 1.4.1 Check whether the live GRUB configuration has the superuser
+      ansible.builtin.command:
+        argv: [grep, -qs, '^set superusers=', /boot/grub/grub.cfg]
+      register: exorcism_grub_live_superuser
+      failed_when: false
+      changed_when: false
+      check_mode: false
+
+    - name: 1.4.1 Apply the bootloader password
+      when:
+        - >-
+          exorcism_grub_unrestricted is changed
+          or exorcism_grub_password_file is changed
+          or exorcism_grub_live_superuser.rc != 0
+        - not ansible_check_mode
+      block:
+        # grub-mkconfig with no -o only prints, so this reads the would-be
+        # configuration without touching the live one. The password file's own
+        # warnings are passed on, because they give the reason it left itself out.
+        - name: 1.4.1 Check every boot entry stays unrestricted
+          ansible.builtin.shell: |
+            set -o pipefail
+            cfg=$(grub-mkconfig 2> >(grep 'exorCISm:' >&2))
+            printf '%s\n' "$cfg" | grep -q '^set superusers=' || {
+              echo "The generated configuration has no GRUB superuser" >&2; exit 1; }
+            entries=$(printf '%s\n' "$cfg" | grep -E '^\s*menuentry .*--class os' || true)
+            [ -n "$entries" ] || { echo "The generated configuration has no boot entries" >&2; exit 1; }
+            restricted=$(printf '%s\n' "$entries" | grep -v -- '--unrestricted' || true)
+            [ -z "$restricted" ] || {
+              printf 'These boot entries would need the password:\n%s\n' "$restricted" >&2; exit 1; }
+            saved=$(grub-editenv list 2>/dev/null | sed -n 's/^saved_entry=//p')
+            case "$saved" in *'>'*)
+              echo "The saved default entry is in a submenu, which the password would lock" >&2; exit 1 ;;
+            esac
+          args:
+            executable: /bin/bash
+          changed_when: false
+
+        - name: 1.4.1 Update the GRUB configuration
+          ansible.builtin.command: update-grub
+          changed_when: true
+
+      rescue:
+        - name: 1.4.1 Remove the GRUB password so boot stays unattended
+          ansible.builtin.file:
+            path: /etc/grub.d/01_exorcism_password
+            state: absent
+
+        - name: 1.4.1 Report why the bootloader password was not applied
+          ansible.builtin.fail:
+            msg: >-
+              The bootloader password was not applied, and its file has been
+              removed so that no later update-grub can lock boot:
+              {{ ansible_failed_result.stderr | default(ansible_failed_result.msg | default('')) }}
