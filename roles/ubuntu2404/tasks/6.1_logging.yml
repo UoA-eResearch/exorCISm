@@ -23,7 +23,7 @@
     mode: "0755"
   tags: 6.1_logging
 
-- name: 6.1.1.1.5-6.1.1.1.7 Add journald configuration
+- name: 6.1.1.1.3, 6.1.1.1.5-6.1.1.1.7 Add journald configuration
   ansible.builtin.copy:
     src: 90-journald.conf
     dest: /etc/systemd/journald.conf.d/90-journald.conf
@@ -99,6 +99,35 @@
   check_mode: false
   tags: 6.1_logging
 
+# chmod on an append-only file fails with "Operation not permitted", so the
+# attribute is cleared for the change and set again afterwards, keeping
+# whatever protection the site gave the file. lsattr exits non-zero on a
+# filesystem without attributes, and what it did print is still usable.
+- name: 6.1.3.1 Find which of those logfiles are append-only
+  ansible.builtin.command:
+    argv: "{{ ['lsattr'] + exorcism_wide_logfiles.stdout_lines | map('split', ' ', 1) | map(attribute=1) | list }}"
+  register: exorcism_logfile_attributes
+  when: exorcism_wide_logfiles.stdout_lines | default([]) | length > 0
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  tags: 6.1_logging
+
+- name: 6.1.3.1 Select the append-only logfiles
+  ansible.builtin.set_fact:
+    exorcism_append_only_logfiles: >-
+      {{ exorcism_logfile_attributes.stdout_lines | default([])
+         | map('split', ' ', 1) | selectattr('0', 'search', 'a')
+         | map(attribute=1) | list }}
+  tags: 6.1_logging
+
+- name: 6.1.3.1 Clear the append-only attribute for the change
+  ansible.builtin.file:
+    path: "{{ item }}"
+    attributes: "-a"
+  loop: "{{ exorcism_append_only_logfiles }}"
+  tags: 6.1_logging
+
 # The lastlog, btmp and wtmp files are excluded above, rotated copies included.
 # They are owned by the utmp group and read through it by lastlog(1) and
 # last(1), so 0640 root:utmp breaks both for every non-root user. Their shipped
@@ -106,7 +135,8 @@
 #
 # Module diff output is off because the label carries the same information in
 # one line. The mode arrives from find as %m, which drops the leading zero, so
-# pad it back.
+# pad it back. A file rotated away since the find above is not an error; any
+# other failure is reported rather than hidden.
 - name: 6.1.3.1 Ensure access to all logfiles has been configured (all files in /var/log)
   ansible.builtin.file:
     path: "{{ exorcism_logfile.1 }}"
@@ -116,6 +146,16 @@
     exorcism_logfile: "{{ item.split(' ', 1) }}"
   loop_control:
     label: "{{ exorcism_logfile.1 }} {{ '%04d' | format(exorcism_logfile.0 | int) }} -> 0640"
+  register: exorcism_logfile_mode
   diff: false
-  failed_when: false
+  failed_when:
+    - exorcism_logfile_mode is failed
+    - "'is absent' not in exorcism_logfile_mode.msg | default('')"
+  tags: 6.1_logging
+
+- name: 6.1.3.1 Restore the append-only attribute
+  ansible.builtin.file:
+    path: "{{ item }}"
+    attributes: "+a"
+  loop: "{{ exorcism_append_only_logfiles }}"
   tags: 6.1_logging

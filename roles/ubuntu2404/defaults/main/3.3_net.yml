@@ -8,3 +8,6 @@ exorcism_rp_filter: 1
 
 # Whether to accept IPv6 router advertisements
 exorcism_ipv6_accept_ra: 0
+
+# Interfaces that accept router advertisements whatever the value above
+exorcism_ipv6_accept_ra_interfaces: []

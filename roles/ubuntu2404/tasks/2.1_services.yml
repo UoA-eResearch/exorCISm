@@ -1,29 +1,62 @@
 ---
-# CIS accepts either removing the package or masking the service. These purge,
-# which is the stronger of the two, and is why each has its own variable: a
-# host that genuinely serves one of these needs the package, not a masked unit.
-- name: 2.1.3 Ensure avahi daemon services are not in use
+# CIS accepts either removing the package or stopping and masking its units.
+# Each service has its own variable, because a host that genuinely serves one
+# of these needs the package, and a host where the package is a dependency of
+# something else can only mask it.
+- name: 2.1.3 Ensure avahi daemon services are not in use (purge)
   ansible.builtin.apt:
     name: avahi-daemon
     state: absent
     purge: true
-  when: exorcism_remove_avahi
+  when: exorcism_avahi_action == 'purge'
   tags: 2.1_services
 
-- name: 2.1.6 Ensure web server services are not in use
+- name: 2.1.6 Ensure web server services are not in use (purge)
   ansible.builtin.apt:
     name:
       - apache2
       - nginx
     state: absent
     purge: true
-  when: exorcism_remove_web_server
+  when: exorcism_web_server_action == 'purge'
   tags: 2.1_services
 
-- name: 2.1.14 Ensure print server services are not in use
+# cups-daemon as well as cups, because the cups units ship in cups-daemon, so
+# purging cups alone leaves cupsd running while the audit, which asks only
+# about the cups package, passes
+- name: 2.1.14 Ensure print server services are not in use (purge)
   ansible.builtin.apt:
-    name: cups
+    name:
+      - cups
+      - cups-daemon
     state: absent
     purge: true
-  when: exorcism_remove_print_server
+  when: exorcism_print_server_action == 'purge'
+  tags: 2.1_services
+
+# The units CIS names for each service, plus cups.path, which would otherwise
+# keep trying to start the masked cups.service, and cups-browsed, the print
+# server's network browsing daemon
+- name: 2.1.3, 2.1.6, 2.1.14 Read the state of the units to mask
+  ansible.builtin.command:
+    argv: [systemctl, show, --property=LoadState, --value, "{{ item }}"]
+  loop: >-
+    {{ (['avahi-daemon.socket', 'avahi-daemon.service'] if exorcism_avahi_action == 'mask' else [])
+       + (['apache2.socket', 'apache2.service', 'nginx.service'] if exorcism_web_server_action == 'mask' else [])
+       + (['cups.socket', 'cups.path', 'cups.service', 'cups-browsed.service'] if exorcism_print_server_action == 'mask' else []) }}
+  register: exorcism_mask_units
+  changed_when: false
+  check_mode: false
+  tags: 2.1_services
+
+# A unit whose package is not installed is masked without being stopped:
+# there is nothing running, and systemd cannot stop a unit it cannot find
+- name: 2.1.3, 2.1.6, 2.1.14 Ensure the services kept as dependencies are stopped and masked
+  ansible.builtin.systemd_service:
+    name: "{{ item.item }}"
+    state: "{{ omit if item.stdout == 'not-found' else 'stopped' }}"
+    masked: true
+  loop: "{{ exorcism_mask_units.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item }}"
   tags: 2.1_services

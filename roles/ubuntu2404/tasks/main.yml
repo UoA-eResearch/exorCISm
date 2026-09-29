@@ -18,6 +18,9 @@
     - exorcism_firewall_extra_rules_v4
     - exorcism_firewall_extra_rules_v6
     - exorcism_ssh_allow_users
+    - exorcism_ssh_allow_groups
+    - exorcism_ssh_omit_directives
+    - exorcism_ipv6_accept_ra_interfaces
     - exorcism_password_excluded_users
   tags: always
 
@@ -30,6 +33,11 @@
   ansible.builtin.include_tasks: 1.3_apparmor.yml
   when: exorcism_section_1_3_apparmor_enabled
   tags: "1.3_apparmor"
+
+- name: 1.4 Configure Bootloader
+  ansible.builtin.include_tasks: 1.4_bootloader.yml
+  when: exorcism_section_1_4_bootloader_enabled
+  tags: "1.4_bootloader"
 
 - name: 1.5 Additional Process Hardening
   ansible.builtin.include_tasks: 1.5_core_dumps.yml

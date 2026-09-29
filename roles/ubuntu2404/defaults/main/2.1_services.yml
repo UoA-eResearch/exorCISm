@@ -1,9 +1,9 @@
 ---
-# 2.1.3. Purge avahi-daemon
-exorcism_remove_avahi: true
+# 2.1.3. purge, mask or keep avahi-daemon
+exorcism_avahi_action: "{{ 'purge' if exorcism_remove_avahi | default(true) | bool else 'keep' }}"
 
-# 2.1.6. Purge apache2 and nginx
-exorcism_remove_web_server: true
+# 2.1.6. purge, mask or keep apache2 and nginx
+exorcism_web_server_action: "{{ 'purge' if exorcism_remove_web_server | default(true) | bool else 'keep' }}"
 
-# 2.1.14. Purge cups
-exorcism_remove_print_server: true
+# 2.1.14. purge, mask or keep cups
+exorcism_print_server_action: "{{ 'purge' if exorcism_remove_print_server | default(true) | bool else 'keep' }}"

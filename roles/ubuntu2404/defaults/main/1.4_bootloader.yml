@@ -1,0 +1,6 @@
+---
+# 1.4.1. GRUB superuser, a GRUB user name rather than a system account
+exorcism_grub_superuser: root
+
+# 1.4.1. Hash printed by grub-mkpasswd-pbkdf2. Keep it in ansible-vault
+exorcism_grub_password_hash: ""

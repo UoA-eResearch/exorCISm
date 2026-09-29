@@ -48,11 +48,40 @@ argument_specs:
           - Value for kernel.apparmor_restrict_unprivileged_unconfined. CIS asks for 1.
           - Stops an unprivileged user creating a user namespace in which an unconfined profile would apply. Ubuntu 24.04 ships this at 1 already.
 
+      # 1.4 Bootloader
+      exorcism_section_1_4_bootloader_enabled:
+        type: bool
+        default: false
+        description:
+          - Apply section 1.4, which sets a GRUB superuser password, CIS 1.4.1.
+          - Off by default, and needs exorcism_grub_password_hash when on.
+          - The password guards editing a boot entry and the GRUB command line, never booting.
+          - Every Linux boot entry is marked --unrestricted, so the host still boots unattended.
+          - The generated configuration is checked before update-grub replaces the live one.
+          - If an entry would still need the password, the change is undone and the run fails.
+          - On every later update-grub the password is left out, with a warning, if 10_linux has lost --unrestricted or GRUB_DEFAULT points into a submenu.
+          - Marking entries --unrestricted edits /etc/grub.d/10_linux, a grub-common conffile, which can hold back a grub-common update in unattended-upgrades.
+
+      exorcism_grub_superuser:
+        type: str
+        default: root
+        description: GRUB superuser name. A name inside GRUB only, not a system account.
+
+      exorcism_grub_password_hash:
+        type: str
+        default: ""
+        description:
+          - The grub.pbkdf2.sha512 hash printed by grub-mkpasswd-pbkdf2 --iteration-count=600000 --salt=64.
+          - Keep it in ansible-vault. The role never prints it, in a diff or otherwise.
+
       # 1.5 Additional process hardening
       exorcism_section_1_5_core_dumps_enabled:
         type: bool
         default: true
-        description: Apply section 1.5, which restricts core dumps and enables address space layout randomisation.
+        description:
+          - Apply section 1.5, which restricts core dumps and enables address space layout randomisation.
+          - A line in /etc/sysctl.conf or /etc/ufw/sysctl.conf that sets one of these kernel parameters is commented out.
+          - Both files are applied after the role's own, so a value in either would override it.
 
       exorcism_remove_apport:
         type: bool
@@ -84,6 +113,16 @@ argument_specs:
           - CIS 1.6.1 requires only that it disclose nothing about the operating system.
           - So it must not use the \m, \r, \s or \v escapes, or name the distribution and release.
 
+      exorcism_remove_motd_os_references:
+        type: bool
+        default: true
+        description:
+          - Remove MOTD scripts and drop-ins that name the operating system, which CIS 1.6.1 fails on even when they are not executable.
+          - On stock Ubuntu this removes the help text, news, Ubuntu Pro and release upgrade scripts from /etc/update-motd.d.
+          - The rest of the dynamic MOTD keeps working.
+          - Removed package files stay removed through upgrades.
+          - Restore one with apt install --reinstall -o Dpkg::Options::=--force-confmiss and the owning package.
+
       exorcism_restrict_motd_files:
         type: bool
         default: true
@@ -114,24 +153,37 @@ argument_specs:
       exorcism_section_2_1_services_enabled:
         type: bool
         default: true
-        description: Apply section 2.1, which removes server services a host does not need.
+        description: Apply section 2.1, which removes or masks server services a host does not need.
 
-      exorcism_remove_avahi:
-        type: bool
-        default: true
-        description: Purge avahi-daemon, which advertises services on the local network by mDNS.
-
-      exorcism_remove_web_server:
-        type: bool
-        default: true
+      exorcism_avahi_action:
+        type: str
+        default: purge
+        choices: [purge, mask, keep]
         description:
-          - Purge apache2 and nginx.
-          - Set false on any host that serves HTTP, including one where a web server only terminates TLS for an application.
+          - What to do with avahi-daemon, which advertises services on the local network by mDNS, for CIS 2.1.3.
+          - purge removes the package. mask stops and masks avahi-daemon.socket and avahi-daemon.service, which CIS accepts where the package is a dependency.
+          - keep leaves it running and 2.1.3 failing.
+          - Replaces exorcism_remove_avahi, which is still honoured, true as purge and false as keep.
 
-      exorcism_remove_print_server:
-        type: bool
-        default: true
-        description: Purge cups. Set false on a host that prints.
+      exorcism_web_server_action:
+        type: str
+        default: purge
+        choices: [purge, mask, keep]
+        description:
+          - What to do with apache2 and nginx, for CIS 2.1.6.
+          - purge removes both packages. mask stops and masks their units.
+          - Set keep on any host that serves HTTP, including one where a web server only terminates TLS for an application.
+          - Replaces exorcism_remove_web_server, which is still honoured, true as purge and false as keep.
+
+      exorcism_print_server_action:
+        type: str
+        default: purge
+        choices: [purge, mask, keep]
+        description:
+          - What to do with cups, for CIS 2.1.14.
+          - purge removes cups and cups-daemon. mask stops and masks cups.socket, cups.path, cups.service and cups-browsed.service.
+          - Use mask where cups is a dependency of other packages, as on desktop and NVIDIA DGX images. Set keep on a host that prints.
+          - Replaces exorcism_remove_print_server, which is still honoured, true as purge and false as keep.
 
       # 2.2 Client services
       exorcism_section_2_2_clients_enabled:
@@ -179,7 +231,7 @@ argument_specs:
       exorcism_section_2_4_cron_enabled:
         type: bool
         default: true
-        description: Apply section 2.4, which restricts cron permissions and access.
+        description: Apply section 2.4, which restricts cron permissions and access where cron is installed.
 
       exorcism_cron_allow_extra_users:
         type: list
@@ -233,7 +285,11 @@ argument_specs:
       exorcism_section_3_3_net_enabled:
         type: bool
         default: true
-        description: Apply section 3.3, which applies network kernel parameters.
+        description:
+          - Apply section 3.3, which applies network kernel parameters.
+          - A line in /etc/sysctl.conf or /etc/ufw/sysctl.conf that sets one of these parameters is commented out.
+          - Both files are applied after the role's own, so a value in either would override it.
+          - ufw ships log_martians=0 in its file, so without this a host with ufw installed fails 3.3.1.16 and 3.3.1.17.
 
       exorcism_ipv4_ip_forward:
         type: int
@@ -265,7 +321,18 @@ argument_specs:
           - Value for net.ipv6.conf.all.accept_ra and its default counterpart.
           - CIS asks for 0 because a host that accepts router advertisements takes its address and default route from whatever is on the wire.
           - A host given its IPv6 address by SLAAC has no other source for its address or default route, so 0 strands it on the next boot.
-          - Leave at 0 only where IPv6 addresses are static or DHCPv6-assigned.
+          - Leave at 0 where IPv6 addresses are static or DHCPv6-assigned, or where the SLAAC interfaces are named in exorcism_ipv6_accept_ra_interfaces.
+
+      exorcism_ipv6_accept_ra_interfaces:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Interfaces that keep accepting IPv6 router advertisements, such as a SLAAC uplink, whatever exorcism_ipv6_accept_ra says.
+          - The kernel acts on each interface's own accept_ra, while CIS 3.3.2.7 and 3.3.2.8 audit only the all and default values.
+          - So exorcism_ipv6_accept_ra can stay at 0 and pass, while the named uplink keeps its address and default route.
+          - Every other interface, such as a fabric NIC or container bridge, stops taking its addressing from the wire.
+          - Interfaces that already exist keep their current value until the next boot, because the kernel does not copy all to them.
 
       # 4.4 Firewall. Keeps its v1.0.0 number: v2.0.0 replaced the iptables and
       # nftables sections with a ufw only section, which this role does not use
@@ -322,6 +389,7 @@ argument_specs:
         description:
           - Groups permitted to log in over SSH, written as AllowGroups.
           - CIS 5.1.4 accepts AllowUsers or AllowGroups. A group is the only way to express every directory user without naming each one.
+          - When exorcism_ssh_allow_users is set as well, sshd admits only a user who matches both lists.
 
       exorcism_ssh_disable_forwarding:
         type: bool

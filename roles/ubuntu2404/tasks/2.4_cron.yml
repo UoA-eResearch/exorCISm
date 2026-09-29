@@ -1,4 +1,12 @@
 ---
+# CIS v2.0.0 scopes every control in 2.4.1 to a host where cron is installed.
+# The crontab binary also carries the group that 2.4.1.9 needs below.
+- name: 2.4.1 Check whether cron is installed
+  ansible.builtin.stat:
+    path: /usr/bin/crontab
+  register: exorcism_crontab_binary
+  tags: 2.4_cron
+
 # One looped pair rather than seven separate tasks, so a run prints one line per
 # path instead of a six line JSON diff block each. The control number moves
 # into the loop label, so a change is still traceable to the benchmark item it
@@ -39,6 +47,7 @@
     label: "{{ item.path }}"
   register: exorcism_cron_paths
   changed_when: false
+  when: exorcism_crontab_binary.stat.exists
   tags: 2.4_cron
 
 - name: 2.4.1.2-2.4.1.8 Ensure access to cron files and directories is configured
@@ -48,20 +57,25 @@
     owner: root
     group: root
     mode: "{{ item.item.mode }}"
-  loop: "{{ exorcism_cron_paths.results }}"
+  loop: "{{ exorcism_cron_paths.results | default([]) }}"
   loop_control:
     label: "{{ item.item.control }} {{ item.item.path }} {{ item.stat.mode | default('absent') }} -> {{ item.item.mode }}"
   diff: false
+  when: exorcism_crontab_binary.stat.exists
   tags: 2.4_cron
 
-# Module diff output stays on here, because it shows the user list being
-# written rather than a mode, which is worth reading
+# crontab is setgid to the crontab group and reads cron.allow through it, so
+# the file takes the binary's group at 0640, which is the form CIS v2.0.0
+# gives. At root:root 0600 crontab cannot open the file and refuses every user
+# listed in it, while the audit still passes. Module diff output stays on,
+# because it shows the user list being written, which is worth reading.
 - name: 2.4.1.9 Ensure access to crontab is configured
   ansible.builtin.copy:
     content: "{{ (['root'] + exorcism_cron_allow_extra_users) | join('\n') }}\n"
     dest: /etc/cron.allow
     owner: root
-    group: root
-    mode: "0600"
+    group: "{{ exorcism_crontab_binary.stat.gr_name }}"
+    mode: "0640"
     force: true
+  when: exorcism_crontab_binary.stat.exists
   tags: 2.4_cron

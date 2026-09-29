@@ -31,7 +31,7 @@
 
 # Stat first. Only /etc/update-motd.d ships on Ubuntu, and handing find a
 # path that is not there makes it warn once per missing directory on every run.
-- name: 1.6.6 Check which MOTD directories exist
+- name: 1.6.1, 1.6.6 Check which MOTD directories exist
   ansible.builtin.stat:
     path: "{{ item }}"
   loop:
@@ -40,7 +40,38 @@
     - /run/motd.d
     - /usr/lib/motd.d
   register: exorcism_motd_dirs
-  when: exorcism_restrict_motd_files
+  when: exorcism_restrict_motd_files or exorcism_remove_motd_os_references
+  tags: 1.6_banner
+
+# The audit greps every MOTD file, scripts included, for the \m, \r, \s and \v
+# escapes and for the operating system's ID, and CIS remediates a file it does
+# not need by removing it. Stock Ubuntu's help text, news, Pro and release
+# upgrade scripts all fail, whether or not they are executable. /run/motd.d is
+# left out, because its files are regenerated at runtime.
+- name: 1.6.1 Find MOTD files that name the operating system
+  ansible.builtin.find:
+    paths: "{{ exorcism_motd_present | reject('eq', '/run/motd.d') | list }}"
+    file_type: file
+    contains: '(?i).*(\\[vrms]|\b{{ ansible_facts.distribution | lower }}\b)'
+  register: exorcism_motd_os_files
+  vars:
+    exorcism_motd_present: >-
+      {{ exorcism_motd_dirs.results | default([])
+         | selectattr('stat.isdir', 'defined') | selectattr('stat.isdir')
+         | map(attribute='item') | list }}
+  when:
+    - exorcism_remove_motd_os_references
+    - exorcism_motd_present | reject('eq', '/run/motd.d') | list | length > 0
+  tags: 1.6_banner
+
+- name: 1.6.1 Ensure /etc/motd is configured (remove MOTD files that name the operating system)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ exorcism_motd_os_files.files | default([]) | map(attribute='path') | list }}"
+  loop_control:
+    label: "{{ item }}"
+  when: exorcism_remove_motd_os_references
   tags: 1.6_banner
 
 - name: 1.6.6 Find files in the MOTD directories

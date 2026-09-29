@@ -1,5 +1,5 @@
 ---
-- name: 3.3.X Network Configuration
+- name: 3.3.1-3.3.2 Ensure network kernel parameters are configured
   ansible.builtin.template:
     src: 90-net.conf.j2
     dest: /etc/sysctl.d/90-net.conf
@@ -7,5 +7,36 @@
     group: root
     mode: "0644"
     force: true
+  notify: Reload sysctl
+  tags: 3.3_net
+
+# ufw applies /etc/ufw/sysctl.conf when it starts, and systemd-sysctl applies
+# /etc/sysctl.conf last, so a value in either beats the file above. The audit
+# reads both first for the same reason. ufw ships log_martians=0 there, which
+# fails 3.3.1.16 and 3.3.1.17 on any host with ufw installed, enabled or not.
+# CIS v2.0.0 remediates by commenting such lines out, which is done here for
+# every key the template sets.
+- name: 3.3.1-3.3.2 Check for sysctl files applied after sysctl.d
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /etc/ufw/sysctl.conf
+    - /etc/sysctl.conf
+  register: exorcism_net_sysctl_overrides
+  tags: 3.3_net
+
+- name: 3.3.1-3.3.2 Ensure no later sysctl file overrides the network kernel parameters
+  ansible.builtin.replace:
+    path: "{{ item.item }}"
+    regexp: '^([ \t]*(?:{{ exorcism_net_sysctl_keys }})[ \t]*=.*)$'
+    replace: '# \1'
+  loop: "{{ exorcism_net_sysctl_overrides.results | selectattr('stat.exists') | list }}"
+  loop_control:
+    label: "{{ item.item }}"
+  vars:
+    exorcism_net_sysctl_keys: >-
+      {{ lookup('ansible.builtin.template', '90-net.conf.j2')
+         | regex_findall('(?m)^([a-z0-9_.]+) =')
+         | map('regex_replace', '\.', '[./]') | join('|') }}
   notify: Reload sysctl
   tags: 3.3_net

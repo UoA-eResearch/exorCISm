@@ -21,10 +21,15 @@
     state: present
   tags: 5.2_sudo
 
+# Directly after pam_rootok, which is where the shipped file places its own
+# commented pam_wheel lines, so su refuses before prompting for a password
+# rather than after the common-auth stack has run
 - name: 5.2.7 Ensure access to the su command is restricted (pam_wheel)
   ansible.builtin.lineinfile:
     path: /etc/pam.d/su
+    regexp: '^\s*auth\s+(required|requisite)\s+pam_wheel\.so\b'
     line: "auth required pam_wheel.so use_uid group={{ exorcism_su_group }}"
+    insertafter: '^\s*auth\s+sufficient\s+pam_rootok\.so'
     create: false
     backup: true
   tags: 5.2_sudo
