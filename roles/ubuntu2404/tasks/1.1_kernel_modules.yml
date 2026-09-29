@@ -1,40 +1,8 @@
 ---
-- name: 1.1.1.1 Ensure cramfs kernel module is not available
-  ansible.builtin.apt:
-    name: cramfs
-    state: absent
-    purge: true
-  tags: 1.1_kernel_modules
-
-- name: 1.1.1.2 Ensure freevxfs kernel module is not available
-  ansible.builtin.apt:
-    name: freevxfs
-    state: absent
-    purge: true
-  tags: 1.1_kernel_modules
-
-- name: 1.1.1.3 Ensure hfs kernel module is not available
-  ansible.builtin.apt:
-    name: hfs
-    state: absent
-    purge: true
-  tags: 1.1_kernel_modules
-
-- name: 1.1.1.4 Ensure hfsplus kernel module is not available
-  ansible.builtin.apt:
-    name: hfsplus
-    state: absent
-    purge: true
-  tags: 1.1_kernel_modules
-
-- name: 1.1.1.5 Ensure jffs2 kernel module is not available
-  ansible.builtin.apt:
-    name: jffs2
-    state: absent
-    purge: true
-  tags: 1.1_kernel_modules
-
-- name: 1.1.1.X Blacklist kernel modules
+# The audit reads modprobe --showconfig for an install line and a blacklist
+# line per module, so one drop-in covers every control in 1.1.1. No package
+# ships these modules separately, so there is nothing to remove with apt.
+- name: 1.1.1.1-1.1.1.10 Ensure filesystem and hardware kernel modules are not available
   ansible.builtin.template:
     src: 90-modprobe.conf.j2
     dest: /etc/modprobe.d/90-modprobe.conf

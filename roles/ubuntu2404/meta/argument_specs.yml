@@ -52,7 +52,10 @@ argument_specs:
       exorcism_section_1_5_core_dumps_enabled:
         type: bool
         default: true
-        description: Apply section 1.5, which restricts core dumps and enables address space layout randomisation.
+        description:
+          - Apply section 1.5, which restricts core dumps and enables address space layout randomisation.
+          - A line in /etc/sysctl.conf or /etc/ufw/sysctl.conf that sets one of these kernel parameters is commented out.
+          - Both files are applied after the role's own, so a value in either would override it.
 
       exorcism_remove_apport:
         type: bool
@@ -179,7 +182,7 @@ argument_specs:
       exorcism_section_2_4_cron_enabled:
         type: bool
         default: true
-        description: Apply section 2.4, which restricts cron permissions and access.
+        description: Apply section 2.4, which restricts cron permissions and access where cron is installed.
 
       exorcism_cron_allow_extra_users:
         type: list
@@ -233,7 +236,11 @@ argument_specs:
       exorcism_section_3_3_net_enabled:
         type: bool
         default: true
-        description: Apply section 3.3, which applies network kernel parameters.
+        description:
+          - Apply section 3.3, which applies network kernel parameters.
+          - A line in /etc/sysctl.conf or /etc/ufw/sysctl.conf that sets one of these parameters is commented out.
+          - Both files are applied after the role's own, so a value in either would override it.
+          - ufw ships log_martians=0 in its file, so without this a host with ufw installed fails 3.3.1.16 and 3.3.1.17.
 
       exorcism_ipv4_ip_forward:
         type: int

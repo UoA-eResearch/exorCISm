@@ -10,6 +10,35 @@
   notify: Reload sysctl
   tags: 1.5_core_dumps
 
+# ufw applies /etc/ufw/sysctl.conf when it starts, and systemd-sysctl applies
+# /etc/sysctl.conf last, so a value in either beats the file above. The audit
+# reads both first for the same reason. CIS v2.0.0 remediates by commenting
+# such lines out, which is done here for every key the file above sets.
+- name: 1.5.1-1.5.9 Check for sysctl files applied after sysctl.d
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /etc/ufw/sysctl.conf
+    - /etc/sysctl.conf
+  register: exorcism_process_sysctl_overrides
+  tags: 1.5_core_dumps
+
+- name: 1.5.1-1.5.9 Ensure no later sysctl file overrides the process hardening kernel parameters
+  ansible.builtin.replace:
+    path: "{{ item.item }}"
+    regexp: '^([ \t]*(?:{{ exorcism_process_sysctl_keys }})[ \t]*=.*)$'
+    replace: '# \1'
+  loop: "{{ exorcism_process_sysctl_overrides.results | selectattr('stat.exists') | list }}"
+  loop_control:
+    label: "{{ item.item }}"
+  vars:
+    exorcism_process_sysctl_keys: >-
+      {{ lookup('ansible.builtin.file', '90-process-hardening.conf')
+         | regex_findall('(?m)^([a-z0-9_.]+) =')
+         | map('regex_replace', '\.', '[./]') | join('|') }}
+  notify: Reload sysctl
+  tags: 1.5_core_dumps
+
 - name: Disable core dumps in /etc/security/limits.conf
   ansible.builtin.copy:
     src: 90-disablecore.conf

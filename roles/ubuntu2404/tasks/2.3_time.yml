@@ -13,13 +13,9 @@
          else 'timesyncd' }}
   tags: 2.3_time
 
-- name: 2.3.1.1 Ensure chrony is installed
-  ansible.builtin.apt:
-    name: chrony
-    state: present
-  when: exorcism_time_daemon_resolved == 'chrony'
-  tags: 2.3_time
-
+# Before chrony is installed, not after. chrony and systemd-timesyncd conflict
+# on time-daemon, so installing chrony removes timesyncd, and a unit whose
+# package has gone can no longer be stopped.
 - name: 2.3.1.1 Ensure a single time synchronisation daemon is in use (mask timesyncd)
   ansible.builtin.systemd_service:
     name: systemd-timesyncd.service
@@ -29,6 +25,13 @@
     - exorcism_time_daemon != 'auto'
     - exorcism_time_daemon_resolved == 'chrony'
     - "'systemd-timesyncd.service' in ansible_facts.services"
+  tags: 2.3_time
+
+- name: 2.3.1.1 Ensure chrony is installed
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+  when: exorcism_time_daemon_resolved == 'chrony'
   tags: 2.3_time
 
 - name: 2.3.1.1 Ensure a single time synchronisation daemon is in use (mask chrony)

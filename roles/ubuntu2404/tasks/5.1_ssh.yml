@@ -27,6 +27,21 @@
   when: exorcism_sshd_config_files.files | length > 0
   tags: 5.1_ssh
 
+# sshd -t refuses to run without its privilege separation directory, which
+# systemd creates only when ssh.service starts. A socket-activated host that
+# has not yet taken a connection, such as one run with a local connection,
+# does not have it.
+- name: 5.1.X Ensure the sshd privilege separation directory exists
+  ansible.builtin.file:
+    path: /run/sshd
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: 5.1_ssh
+
+# Validated before it is written, because sshd refuses to start with a bad
+# file, and a socket-activated host then refuses every new connection
 - name: 5.1.X Copy 90-ssh.conf with base SSH configuration
   ansible.builtin.template:
     src: 90-ssh.conf.j2
@@ -35,5 +50,6 @@
     group: root
     mode: "0600"
     force: true
-  notify: Restart sshd
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Reload sshd
   tags: 5.1_ssh
