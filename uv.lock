@@ -6,6 +6,10 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
+[options]
+prerelease-mode = "disallow"
+exclude-newer = "2026-10-31T21:38:40Z"
+
 [[package]]
 name = "ansible-compat"
 version = "26.10.0"
