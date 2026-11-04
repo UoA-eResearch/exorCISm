@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 - 2026-11-04
+
+### Added
+
+- Make the idle shell timeout configurable, and allow turning it off where users keep idle shells open
+
 ## 0.5.0 - 2026-09-29
 
 ### Added

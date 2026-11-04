@@ -444,6 +444,15 @@ argument_specs:
           - Default umask applied via /etc/profile.d/60-default_umask.sh and /etc/login.defs.
           - Quote the value. An unquoted 027 is read as octal and becomes 23.
 
+      exorcism_shell_timeout:
+        type: int
+        default: 900
+        description:
+          - Seconds an interactive shell may sit idle at its prompt before it exits.
+          - Written to /etc/profile.d/90-tmout.sh as a readonly, exported TMOUT. 5.4.3.2 passes at 900 or less.
+          - 0 removes the file and leaves 5.4.3.2 failing, for hosts where users keep idle shells open.
+          - A tmux or screen pane is such a shell, and closes with its scrollback when the timeout fires.
+
       exorcism_password_excluded_users:
         type: list
         elements: str
