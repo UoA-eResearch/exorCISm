@@ -21,7 +21,7 @@ ansible-galaxy collection install git+https://github.com/UoA-eResearch/exorCISm.
 That tracks the default branch. Pin to a release instead, so an upstream change cannot alter what a host gets on the next run.
 
 ```sh
-ansible-galaxy collection install git+https://github.com/UoA-eResearch/exorCISm.git,v0.1.0
+ansible-galaxy collection install git+https://github.com/UoA-eResearch/exorCISm.git,v0.6.0
 ```
 
 To pin it in a project, put the same reference in `requirements.yml` and install with `ansible-galaxy collection install -r requirements.yml`.
@@ -30,7 +30,7 @@ To pin it in a project, put the same reference in `requirements.yml` and install
 collections:
   - name: https://github.com/UoA-eResearch/exorCISm.git
     type: git
-    version: v0.1.0
+    version: v0.6.0
 ```
 
 ## Quick start
@@ -64,6 +64,7 @@ Every variable is optional. Running the role with none set still hardens the hos
 | `exorcism_ntp_servers` | `[]` | You have internal time servers |
 | `exorcism_ntp_fallback_servers` | `[]` | The host uses `systemd-timesyncd`. CIS 2.3.2.1 requires `FallbackNTP` as well as `NTP`, and it fails until both are set |
 | `exorcism_password_excluded_users` | `[]` | Service accounts must not have passwords expire or lock |
+| `exorcism_shell_timeout` | `900` | Users keep idle shells open, such as tmux or screen panes, which close with their scrollback when the timeout fires. Set `0`, which leaves 5.4.3.2 failing |
 | `exorcism_ssh_disable_forwarding` | `true` | It is a bastion, or users need port forwarding. Set `false` |
 | `exorcism_ssh_allow_groups` | `[]` | Restricting SSH to named groups, which is the only way to express every directory user. With `exorcism_ssh_allow_users` also set, a user must match both |
 | `exorcism_ssh_omit_directives` | `[]` | Another tool owns an sshd keyword, and the role should stop writing it |
@@ -76,13 +77,16 @@ Every variable is optional. Running the role with none set still hardens the hos
 | `exorcism_disable_wireless` | `true` | The host uses wireless networking. Set `false` |
 | `exorcism_web_server_action` | `purge` | The host serves HTTP, including where a web server only terminates TLS for an application. Set `keep` |
 | `exorcism_print_server_action` | `purge` | cups is a dependency of other packages, as on desktop and DGX images. Set `mask`, or `keep` on a host that prints |
+| `exorcism_avahi_action` | `purge` | avahi is a dependency of other packages, as on desktop and DGX images. Set `mask`, or `keep` where the host is found by mDNS |
+| `exorcism_banner_text` | the CIS warning | Your compliance scanner compares the login banners against its own text, as Tenable does, or the site has its own wording |
+| `exorcism_cron_allow_extra_users` | `[]` | Users other than root need `crontab`. Without this only root can edit a crontab, although jobs root installs for a user still run |
 | `exorcism_restrict_motd_files` | `true` | You want to keep Ubuntu's dynamic message of the day. Set `false` |
 
-For a worked example covering these in context, see [playbooks/ubuntu2404_example.yml](playbooks/ubuntu2404_example.yml). For the complete reference of all 61 variables with types, defaults and permitted values, run `ansible-doc -t role uoa_eresearch.exorcism.ubuntu2404`.
+For a worked example covering these in context, see [playbooks/ubuntu2404_example.yml](playbooks/ubuntu2404_example.yml). For the complete reference of every variable, with types, defaults and permitted values, run `ansible-doc -t role uoa_eresearch.exorcism.ubuntu2404`.
 
 Variables fall into three kinds. Some are values the role cannot guess. Some are controls applied by default that you turn off when one breaks something. The rest are extra hardening left off by default because it can break a working system.
 
-Three sections are off by default and are enabled per host. Set `exorcism_section_1_3_apparmor_enabled` to apply AppArmor, which confines applications by profile and blocks one whose profile does not match how you run it. Set `exorcism_section_1_4_bootloader_enabled`, with a hash from `grub-mkpasswd-pbkdf2` in `exorcism_grub_password_hash`, to password-protect editing GRUB boot entries; the host still boots unattended. Set `exorcism_section_6_3_integrity_enabled` to install AIDE, whose first run builds a database of every file it watches and takes minutes to hours.
+Four sections are off by default and are enabled per host. Set `exorcism_section_1_3_apparmor_enabled` to apply AppArmor, which confines applications by profile and blocks one whose profile does not match how you run it. Set `exorcism_section_1_4_bootloader_enabled`, with a hash from `grub-mkpasswd-pbkdf2` in `exorcism_grub_password_hash`, to password-protect editing GRUB boot entries; the host still boots unattended. Set `exorcism_section_4_4_firewall_enabled` to let the role own the host's iptables rulesets, after reading the rules it writes, because a default-DROP policy applied without review can cut the host off. CIS v2.0.0 audits ufw only, so a compliance scan does not credit those rules. Set `exorcism_section_6_3_integrity_enabled` to install AIDE, whose first run builds a database of every file it watches and takes minutes to hours.
 
 GDM configuration is on by default but applies only where GDM is installed, so a headless host is unaffected.
 
