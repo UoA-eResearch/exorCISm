@@ -13,5 +13,5 @@ requires-python = ">=3.12"
 [dependency-groups]
 dev = [
   "ansible-core>=2.21",
-  "ansible-lint>=26.10.1",
+  "ansible-lint>=26.11.0",
 ]
